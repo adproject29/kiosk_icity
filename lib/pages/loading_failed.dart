@@ -1,17 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:flutter_app/app_theme.dart';
-import 'package:flutter_app/pages/reload.dart';
+import 'package:flutter_app/pages/qr_error.dart';
 
-class LoadingScreen extends StatelessWidget {
-  final String username;
-  final double balance;
-
-  LoadingScreen({
-    required this.username,
-    required this.balance,
-  });
-
+class LoadingFailed extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Get screen size
@@ -21,10 +13,7 @@ class LoadingScreen extends StatelessWidget {
     void redirectAfterDelay() {
       Future.delayed(const Duration(seconds: 2), () {
         Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (context) => Reload(
-            username: username,
-            balance: balance,
-          ),
+          builder: (context) => QRError(),
         ));
       });
     }
@@ -41,7 +30,7 @@ class LoadingScreen extends StatelessWidget {
             clipBehavior: Clip.none,
             children: [
               Container(
-                padding: const EdgeInsets.fromLTRB(85, 88, 59, 117),
+                padding: const EdgeInsets.fromLTRB(85, 100, 59, 117),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -57,12 +46,12 @@ class LoadingScreen extends StatelessWidget {
                         ),
                       ),
                       child: const SizedBox(
-                        width: 600,
-                        height: 600,
+                        width: 700,
+                        height: 700,
                       ),
                     ),
                     Container(
-                      margin: const EdgeInsets.fromLTRB(0, 0, 31, 0),
+                      margin: const EdgeInsets.fromLTRB(10, 0, 31, 0),
                       child: const Text(
                         'Verifying...',
                         style: TextStyle(

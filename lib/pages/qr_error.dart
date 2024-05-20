@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/home_screen.dart';
-import 'package:flutter_app/pages/terminal.dart';
+import 'package:flutter_app/pages/scan_qr.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_app/app_theme.dart';
 
-class PaymentError extends StatelessWidget {
-  const PaymentError({super.key});
+class QRError extends StatelessWidget {
+  const QRError({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +35,7 @@ class PaymentError extends StatelessWidget {
             Container(
               margin: const EdgeInsets.fromLTRB(0, 0, 0, 383),
               child: Text(
-                'Payment Error',
+                'QR Error',
                 style: GoogleFonts.getFont(
                   'Poppins',
                   fontWeight: FontWeight.w600,
@@ -78,13 +78,7 @@ class PaymentError extends StatelessWidget {
             GestureDetector(
               onTap: () {
                 Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => Terminal(
-                              username: '',
-                              balance: 0.0,
-                              amount: 0.0,
-                            )));
+                    context, MaterialPageRoute(builder: (context) => ScanQr()));
               },
               child: Container(
                 margin: const EdgeInsets.only(bottom: 10),

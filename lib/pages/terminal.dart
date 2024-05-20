@@ -6,6 +6,12 @@ import 'package:flutter_app/app_theme.dart';
 import 'payment_error.dart';
 
 class Terminal extends StatelessWidget {
+  final String username;
+  final double balance;
+  final double amount;
+
+  Terminal(
+      {required this.username, required this.balance, required this.amount});
   @override
   Widget build(BuildContext context) {
     return AppTheme.buildPage(
@@ -18,7 +24,12 @@ class Terminal extends StatelessWidget {
               onTap: () {
                 // Reload page (push current page again)
                 Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => Reload()));
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => Reload(
+                              username: username,
+                              balance: balance,
+                            )));
               },
               child: Container(
                 padding: const EdgeInsets.fromLTRB(55, 45, 55, 746),
@@ -48,7 +59,10 @@ class Terminal extends StatelessWidget {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => Reload()));
+                                      builder: (context) => Reload(
+                                            username: '',
+                                            balance: 0.0,
+                                          )));
                             },
                             child: Container(
                               width: 150,
@@ -117,8 +131,11 @@ class Terminal extends StatelessWidget {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) =>
-                                          const PaymentSuccess()));
+                                      builder: (context) => PaymentSuccess(
+                                            amount: amount,
+                                            username: username,
+                                            balance: balance,
+                                          )));
                             },
                             child: const Text('Success Cheat'),
                           ),

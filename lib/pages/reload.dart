@@ -3,9 +3,17 @@ import 'package:flutter_app/pages/scan_qr.dart';
 import 'package:flutter_app/pages/terminal.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_app/app_theme.dart'; // Importing AppTheme
+import 'package:flutter_app/app_theme.dart';
 
 class Reload extends StatefulWidget {
+  final String username;
+  final double balance;
+
+  Reload({
+    required this.username,
+    required this.balance,
+  });
+
   @override
   _ReloadState createState() => _ReloadState();
 }
@@ -66,6 +74,9 @@ class _ReloadState extends State<Reload> {
         }
       },
       child: Container(
+        width: 250,
+        margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+        padding: const EdgeInsets.fromLTRB(0, 30, 0, 30),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(40),
           color: button == 'C' ? Colors.red : Colors.grey[300],
@@ -77,11 +88,7 @@ class _ReloadState extends State<Reload> {
             ),
           ],
         ),
-        child: Container(
-          width: 250,
-          margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-          padding: const EdgeInsets.fromLTRB(0, 30, 0, 30),
-          alignment: Alignment.center,
+        child: Center(
           child: button == 'C'
               ? Text(
                   'Clear',
@@ -126,7 +133,9 @@ class _ReloadState extends State<Reload> {
     );
   }
 
-  void _showReloadConfirmationDialog(BuildContext context) {
+  void _showReloadConfirmationDialog(
+      BuildContext context, String username, double balance, String amount) {
+    // Change parameter type to String
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -142,12 +151,20 @@ class _ReloadState extends State<Reload> {
             ),
             TextButton(
               onPressed: () {
+                // Convert amount to double before passing
+                double reloadAmount = double.parse(amount);
                 // Add logic to proceed with reload
                 Navigator.of(context).pop();
                 // Navigate to the terminal page
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => Terminal()),
+                  MaterialPageRoute(
+                    builder: (context) => Terminal(
+                      username: username,
+                      balance: balance,
+                      amount: reloadAmount, // Pass the converted amount
+                    ),
+                  ),
                 );
               },
               child: Text('Confirm'),
@@ -161,16 +178,13 @@ class _ReloadState extends State<Reload> {
   @override
   Widget build(BuildContext context) {
     return AppTheme.buildPage(
-        // Wrap with AppTheme widget
-        child: Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              margin: const EdgeInsets.fromLTRB(0, 0, 2, 0),
-              child: Align(
+      child: Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Align(
                 alignment: Alignment.topCenter,
                 child: Stack(
                   children: [
@@ -196,7 +210,10 @@ class _ReloadState extends State<Reload> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => Reload(),
+                                  builder: (context) => Reload(
+                                    username: widget.username,
+                                    balance: 0.0,
+                                  ),
                                 ),
                               );
                             },
@@ -217,12 +234,8 @@ class _ReloadState extends State<Reload> {
                                 child: SizedBox(
                                   width: 43,
                                   height: 81,
-                                  child: SizedBox(
-                                    width: 43,
-                                    height: 81,
-                                    child: SvgPicture.asset(
-                                      'assets/vectors/arrow_back.svg',
-                                    ),
+                                  child: SvgPicture.asset(
+                                    'assets/vectors/arrow_back.svg',
                                   ),
                                 ),
                               ),
@@ -232,10 +245,10 @@ class _ReloadState extends State<Reload> {
                         Container(
                           margin: const EdgeInsets.fromLTRB(10, 130, 0, 19),
                           child: Text(
-                            'test',
+                            widget.username,
                             style: GoogleFonts.poppins(
                               fontWeight: FontWeight.w500,
-                              fontSize: 48,
+                              fontSize: 40,
                               color: Colors.black,
                             ),
                           ),
@@ -260,47 +273,44 @@ class _ReloadState extends State<Reload> {
                   ],
                 ),
               ),
-            ),
-            Align(
-              alignment: Alignment.topLeft,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(310, 0, 0, 12),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.fromLTRB(0, 26, 10.3, 9),
-                          child: Text(
-                            'Current Balance :',
-                            style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.w400,
-                              fontSize: 32,
-                              color: Colors.black,
+              Align(
+                alignment: Alignment.topLeft,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(310, 0, 0, 12),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.fromLTRB(0, 26, 10.3, 9),
+                            child: Text(
+                              'Current Balance :',
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w400,
+                                fontSize: 32,
+                                color: Colors.black,
+                              ),
                             ),
                           ),
-                        ),
-                        Text(
-                          'RM00.00',
-                          style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 55,
-                            color: const Color(0xFFF36F21),
+                          Text(
+                            'RM${widget.balance.toStringAsFixed(2)}',
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 55,
+                              color: const Color(0xFFF36F21),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(0, 0, 13.6, 0),
-                    child: SizedBox(
-                      width: 1000,
-                      child: Container(
-                        padding: const EdgeInsets.fromLTRB(0, 17, 0, 124),
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(0, 0, 13.6, 0),
+                      child: SizedBox(
+                        width: 1000,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -375,7 +385,12 @@ class _ReloadState extends State<Reload> {
                             GestureDetector(
                               onTap: () {
                                 if (isValidAmount) {
-                                  _showReloadConfirmationDialog(context);
+                                  double reloadAmount = double.parse(amount);
+                                  _showReloadConfirmationDialog(
+                                      context,
+                                      widget.username,
+                                      widget.balance,
+                                      reloadAmount.toString());
                                 }
                               },
                               child: Container(
@@ -383,7 +398,7 @@ class _ReloadState extends State<Reload> {
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(25),
                                   color: isValidAmount
-                                      ? Color(0xFFF36F21)
+                                      ? const Color(0xFFF36F21)
                                       : Colors.grey,
                                   boxShadow: const [
                                     BoxShadow(
@@ -417,13 +432,13 @@ class _ReloadState extends State<Reload> {
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ));
+    );
   }
 }

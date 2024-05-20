@@ -5,7 +5,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_app/app_theme.dart';
 
 class PaymentSuccess extends StatelessWidget {
-  const PaymentSuccess({super.key});
+  final double amount;
+  final String username;
+  final double balance;
+
+  PaymentSuccess(
+      {required this.amount, required this.username, required this.balance});
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +42,7 @@ class PaymentSuccess extends StatelessWidget {
                 Container(
                   margin: const EdgeInsets.fromLTRB(0, 0, 13, 13),
                   child: Text(
-                    'RM 200.00 ',
+                    'RM $amount ',
                     style: GoogleFonts.getFont(
                       'Poppins',
                       fontWeight: FontWeight.w600,
@@ -94,8 +99,15 @@ class PaymentSuccess extends StatelessWidget {
                   children: [
                     ElevatedButton(
                       onPressed: () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => Reload()));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Reload(
+                              username: username,
+                              balance: balance,
+                            ),
+                          ),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
@@ -124,9 +136,11 @@ class PaymentSuccess extends StatelessWidget {
                     ElevatedButton(
                       onPressed: () {
                         Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => HomeScreen()));
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => HomeScreen(),
+                          ),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,

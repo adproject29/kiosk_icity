@@ -5,7 +5,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_app/app_theme.dart';
 
 class PaymentError extends StatelessWidget {
-  const PaymentError({super.key});
+  final double amount;
+  final String username;
+  final double balance;
+
+  PaymentError(
+      {required this.amount, required this.username, required this.balance});
 
   @override
   Widget build(BuildContext context) {

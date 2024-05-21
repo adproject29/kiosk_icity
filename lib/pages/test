@@ -1,0 +1,85 @@
+// Updates to keyboard shortcuts … On Thursday, 1 August 2024, Drive keyboard shortcuts will be updated to give you first-letter navigation.Learn more
+// ﻿using iCityClassLibrary;
+// using ICityWebAPI.Common;
+// using ICityWebAPI.Models;
+// using System;
+// using System.Collections.Generic;
+// using System.Configuration;
+// using System.Data;
+// using System.Data.SqlClient;
+// using System.Linq;
+// using System.Net;
+// using System.Net.Http;
+// using System.Web.Http;
+
+// namespace ICityWebAPI.Controllers
+// {
+//   [RoutePrefix("api/topup")]
+//   public class TopupController : ApiController
+//   {
+//     private const string keypassphrase = "";
+
+//     private int SaveTopupTransaction(Transaction a)
+//     {
+//       try
+//       {
+//         string query = "INSERT INTO App_Transaction(QRData,Type,Amount,Location,CreatedDate) VALUES(@QRData,@Type,@Amount,@Location,GETDATE());SELECT SCOPE_IDENTITY();";
+//         List<SqlParameter> parameters = new List<SqlParameter>();
+//         parameters.Add(new SqlParameter("@QRData", a.QRData.ToString().Trim()));
+//         parameters.Add(new SqlParameter("@Type", a.Type.ToString().Trim()));
+//         parameters.Add(new SqlParameter("@Amount", a.Amount.ToString().Trim()));
+//         parameters.Add(new SqlParameter("@Location", a.TerminalName.ToString().Trim()));
+//         int topupid = Convert.ToInt32(SqlHelper.ExecuteScalar(CommonFunctions.strConn,
+//             query, CommandType.Text, parameters.ToArray()));
+
+//         return UpdateAccountBalance(a.Id, a.Amount);
+//       }
+//       catch (Exception ex)
+//       {
+//         return -1;
+//       }
+
+//     }
+
+//     private int UpdateAccountBalance(int accid, decimal amt)
+//     {
+//       try
+//       {
+//         string query = "UPDATE App_Account SET Balance=@Amount WHERE ID=@id;";
+//         List<SqlParameter> parameters = new List<SqlParameter>();
+//         parameters.Add(new SqlParameter("@id", accid));
+//         parameters.Add(new SqlParameter("@Amount", amt));
+//         Convert.ToInt32(SqlHelper.ExecuteScalar(CommonFunctions.strConn,
+//             query, CommandType.Text, parameters.ToArray()));
+
+//         return 1;
+//       }
+//       catch (Exception ex)
+//       {
+//         return -1;
+//       }
+
+//     }
+
+//     [HttpPost]
+//     [AcceptVerbs("GET", "POST")]
+//     [Route("save")]  // api/topup/save
+//     public string BeginTopupTransaction(string qrdata)
+//     {
+//       try
+//       {
+//         string data = clsPasswordEncryptDecrypt.Decrypt(qrdata, keypassphrase);
+//         string[] datas = data.Split('|');
+//         Transaction trx = new Transaction();
+
+
+//         return "Transaction successfully completed.";
+//       }
+//       catch (Exception ex)
+//       {
+//         return "Transaction failed.";
+//       }
+
+//     }
+//   }
+// }

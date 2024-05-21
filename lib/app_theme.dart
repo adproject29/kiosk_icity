@@ -26,10 +26,6 @@ class AppTheme {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(30),
-                        border: Border.all(
-                          color: Colors.white,
-                          width: 0,
-                        ),
                       ),
                       padding: const EdgeInsets.all(0),
                       child: SingleChildScrollView(

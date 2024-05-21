@@ -3,6 +3,9 @@ import 'package:flutter_app/pages/payment_success.dart';
 import 'package:flutter_app/pages/reload.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_app/app_theme.dart';
+import 'package:uuid/uuid.dart'; // Import uuid package
+import 'dart:io' show Platform; // For non-web platforms
+import 'dart:html' as html; // For web support
 import 'payment_error.dart';
 
 class Terminal extends StatelessWidget {
@@ -12,24 +15,29 @@ class Terminal extends StatelessWidget {
 
   Terminal(
       {required this.username, required this.balance, required this.amount});
+
   @override
   Widget build(BuildContext context) {
+    // Generate UUID
+    String deviceUUID = Uuid().v4();
+    print('Generated UUID: $deviceUUID');
+
     return AppTheme.buildPage(
-      // Use instance of AppTheme
       child: Stack(
         clipBehavior: Clip.none,
         children: [
           Positioned.fill(
             child: GestureDetector(
               onTap: () {
-                // Reload page (push current page again)
                 Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => Reload(
-                              username: username,
-                              balance: balance,
-                            )));
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Reload(
+                      username: username,
+                      balance: balance,
+                    ),
+                  ),
+                );
               },
               child: Container(
                 padding: const EdgeInsets.fromLTRB(55, 45, 55, 746),
@@ -55,14 +63,15 @@ class Terminal extends StatelessWidget {
                           ),
                           child: GestureDetector(
                             onTap: () {
-                              // Reload page (push current page again)
                               Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => Reload(
-                                            username: '',
-                                            balance: 0.0,
-                                          )));
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Reload(
+                                    username: '',
+                                    balance: 0.0,
+                                  ),
+                                ),
+                              );
                             },
                             child: Container(
                               width: 150,
@@ -81,7 +90,6 @@ class Terminal extends StatelessWidget {
                         ),
                       ),
                     ),
-                    // Adding new children list here
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -127,27 +135,32 @@ class Terminal extends StatelessWidget {
                         children: [
                           ElevatedButton(
                             onPressed: () {
-                              // Navigate to success screen
                               Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => PaymentSuccess(
-                                            amount: amount,
-                                            username: username,
-                                            balance: balance,
-                                          )));
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => PaymentSuccess(
+                                    amount: amount,
+                                    username: username,
+                                    balance: balance,
+                                  ),
+                                ),
+                              );
                             },
                             child: const Text('Success Cheat'),
                           ),
                           const SizedBox(width: 20),
                           ElevatedButton(
                             onPressed: () {
-                              // Navigate to PaymentError screen
                               Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const PaymentError()));
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => PaymentError(
+                                    amount: amount,
+                                    username: username,
+                                    balance: balance,
+                                  ),
+                                ),
+                              );
                             },
                             child: const Text('Fail Cheat'),
                           ),

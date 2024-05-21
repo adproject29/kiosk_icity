@@ -42,7 +42,7 @@ class PaymentSuccess extends StatelessWidget {
                 Container(
                   margin: const EdgeInsets.fromLTRB(0, 0, 13, 13),
                   child: Text(
-                    'RM $amount ',
+                    'RM $amount.00 ',
                     style: GoogleFonts.getFont(
                       'Poppins',
                       fontWeight: FontWeight.w600,
@@ -82,7 +82,7 @@ class PaymentSuccess extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        'RM 268.00',
+                        'RM $balance',
                         style: GoogleFonts.getFont(
                           'Poppins',
                           fontWeight: FontWeight.w600,

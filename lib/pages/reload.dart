@@ -19,16 +19,20 @@ class Reload extends StatefulWidget {
 }
 
 class _ReloadState extends State<Reload> {
-  String amount = "0";
+  int amount = 0;
   bool isValidAmount = false;
+  bool isContinueDisabled = false;
+  double minReloadOpacity = 0.0;
+  double maxReloadOpacity = 0.0;
 
   void onNumberPressed(String number) {
-    if (amount == "500") return;
     setState(() {
-      if (amount == "0") {
-        amount = number;
+      int num = int.parse(number);
+      if (amount == 500) return;
+      if (amount == 0) {
+        amount = num;
       } else {
-        amount += number;
+        amount = amount * 10 + num;
       }
       _validateAmount();
     });
@@ -36,29 +40,41 @@ class _ReloadState extends State<Reload> {
 
   void onClearPressed() {
     setState(() {
-      amount = "0";
+      amount = 0;
       _validateAmount();
     });
   }
 
   void onDeletePressed() {
     setState(() {
-      if (amount.length > 1) {
-        amount = amount.substring(0, amount.length - 1);
+      if (amount >= 10) {
+        amount = amount ~/ 10;
       } else {
-        amount = "0";
+        amount = 0;
       }
       _validateAmount();
     });
   }
 
   void _validateAmount() {
-    double value = double.tryParse(amount) ?? 0;
-    isValidAmount = value >= 20 && value <= 500;
+    isValidAmount = amount >= 20 && amount <= 500;
+    isContinueDisabled = !isValidAmount;
+
+    if (amount == 0 || amount < 20) {
+      minReloadOpacity = 1.0;
+      maxReloadOpacity = 0.0;
+    } else if (amount > 500) {
+      minReloadOpacity = 0.0;
+      maxReloadOpacity = 1.0;
+    } else {
+      minReloadOpacity = 0.0;
+      maxReloadOpacity = 0.0;
+    }
   }
 
   Widget _buildButton(String button) {
-    bool isDisabled = amount == "500" && button != 'C' && button != 'D';
+    bool isDisabled = amount > 500 && button != 'C' && button != 'D';
+
     return GestureDetector(
       onTapDown: (_) {
         if (!isDisabled) {
@@ -134,8 +150,7 @@ class _ReloadState extends State<Reload> {
   }
 
   void _showReloadConfirmationDialog(
-      BuildContext context, String username, double balance, String amount) {
-    // Change parameter type to String
+      BuildContext context, String username, double balance, int amount) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -151,18 +166,14 @@ class _ReloadState extends State<Reload> {
             ),
             TextButton(
               onPressed: () {
-                // Convert amount to double before passing
-                double reloadAmount = double.parse(amount);
-                // Add logic to proceed with reload
                 Navigator.of(context).pop();
-                // Navigate to the terminal page
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => Terminal(
                       username: username,
                       balance: balance,
-                      amount: reloadAmount, // Pass the converted amount
+                      amount: amount.toDouble(),
                     ),
                   ),
                 );
@@ -178,266 +189,254 @@ class _ReloadState extends State<Reload> {
   @override
   Widget build(BuildContext context) {
     return AppTheme.buildPage(
-      child: Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Align(
-                alignment: Alignment.topCenter,
-                child: Stack(
+      child: Column(
+        children: [
+          Align(
+            child: Stack(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.fromLTRB(50, 50, 10, 0),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30),
-                            color: Colors.white,
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Color(0x40000000),
-                                offset: Offset(0, 4),
-                                blurRadius: 2,
-                              ),
-                            ],
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(50, 50, 10, 0),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(30),
+                        color: Colors.white,
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0x40000000),
+                            offset: Offset(0, 4),
+                            blurRadius: 2,
                           ),
+                        ],
+                      ),
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Reload(
+                                username: widget.username,
+                                balance: 0.0,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          width: 150,
+                          height: 150,
+                          padding: const EdgeInsets.fromLTRB(20, 35, 33, 34),
                           child: GestureDetector(
                             onTap: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => Reload(
-                                    username: widget.username,
-                                    balance: 0.0,
-                                  ),
+                                  builder: (context) => const ScanQr(),
                                 ),
                               );
                             },
-                            child: Container(
-                              width: 150,
-                              height: 150,
-                              padding:
-                                  const EdgeInsets.fromLTRB(20, 35, 33, 34),
-                              child: GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const ScanQr(),
-                                    ),
-                                  );
-                                },
-                                child: SizedBox(
-                                  width: 43,
-                                  height: 81,
-                                  child: SvgPicture.asset(
-                                    'assets/vectors/arrow_back.svg',
-                                  ),
-                                ),
+                            child: SizedBox(
+                              width: 43,
+                              height: 81,
+                              child: SvgPicture.asset(
+                                'assets/vectors/arrow_back.svg',
                               ),
                             ),
-                          ),
-                        ),
-                        Container(
-                          margin: const EdgeInsets.fromLTRB(10, 130, 0, 19),
-                          child: Text(
-                            widget.username,
-                            style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.w500,
-                              fontSize: 40,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Positioned(
-                      left: 220,
-                      top: 85,
-                      child: SizedBox(
-                        height: 60,
-                        child: Text(
-                          'Hi,',
-                          style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.w400,
-                            fontSize: 40,
-                            color: Colors.black,
                           ),
                         ),
                       ),
-                    )
+                    ),
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(10, 130, 0, 19),
+                      child: Text(
+                        widget.username,
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 40,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
-              ),
-              Align(
-                alignment: Alignment.topLeft,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(310, 0, 0, 12),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            margin: const EdgeInsets.fromLTRB(0, 26, 10.3, 9),
-                            child: Text(
-                              'Current Balance :',
-                              style: GoogleFonts.poppins(
-                                fontWeight: FontWeight.w400,
-                                fontSize: 32,
-                                color: Colors.black,
-                              ),
+                Positioned(
+                  left: 220,
+                  top: 85,
+                  child: SizedBox(
+                    height: 60,
+                    child: Text(
+                      'Hi,',
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 40,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+          Container(
+            margin: const EdgeInsets.fromLTRB(310, 0, 0, 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  margin: const EdgeInsets.fromLTRB(0, 26, 10.3, 9),
+                  child: Text(
+                    'Current Balance :',
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w400,
+                      fontSize: 32,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+                Text(
+                  'RM${widget.balance.toStringAsFixed(2)}',
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 55,
+                    color: const Color(0xFFF36F21),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            margin: const EdgeInsets.fromLTRB(0, 0, 13.6, 0),
+            child: SizedBox(
+              width: 1000,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(16, 20, 0, 0),
+                    child: Text(
+                      'Enter reload amount',
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w300,
+                        fontSize: 48,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(17, 0, 0, 19),
+                    child: Text(
+                      'RM $amount',
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 64,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(7, 0, 0, 7),
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        color: Colors.black,
+                      ),
+                      child: const SizedBox(
+                        width: 700,
+                        height: 3,
+                      ),
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Opacity(
+                        opacity: minReloadOpacity,
+                        child: Container(
+                          margin: const EdgeInsets.fromLTRB(102, 5, 0, 30),
+                          child: Text(
+                            '*Min reload: RM20',
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w400,
+                              fontSize: 32,
+                              color: const Color(0xFFEB001B),
                             ),
                           ),
-                          Text(
-                            'RM${widget.balance.toStringAsFixed(2)}',
+                        ),
+                      ),
+                      Opacity(
+                        opacity: maxReloadOpacity,
+                        child: Container(
+                          margin: const EdgeInsets.fromLTRB(0, 5, 100, 30),
+                          child: Text(
+                            '*Max reload: RM500',
                             style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 55,
-                              color: const Color(0xFFF36F21),
+                              fontWeight: FontWeight.w400,
+                              fontSize: 32,
+                              color: const Color(0xFFEB001B),
                             ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  _buildRow(['1', '2', '3']),
+                  _buildRow(['4', '5', '6']),
+                  _buildRow(['7', '8', '9']),
+                  _buildRow(['C', '0', 'D']),
+                  GestureDetector(
+                    onTap: () {
+                      if (isValidAmount) {
+                        _showReloadConfirmationDialog(
+                          context,
+                          widget.username,
+                          widget.balance,
+                          amount,
+                        );
+                      }
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.fromLTRB(0, 0, 2, 0),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(25),
+                        color: isContinueDisabled
+                            ? Colors.grey
+                            : isValidAmount
+                                ? const Color(0xFF4CAF50)
+                                : Colors.grey,
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0x40000000),
+                            offset: Offset(0, 4),
+                            blurRadius: 2,
                           ),
                         ],
                       ),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(0, 0, 13.6, 0),
-                      child: SizedBox(
-                        width: 1000,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Container(
-                              margin: const EdgeInsets.fromLTRB(16, 20, 0, 0),
-                              child: Text(
-                                'Enter reload amount',
-                                style: GoogleFonts.poppins(
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: 48,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ),
-                            Container(
-                              margin: const EdgeInsets.fromLTRB(17, 0, 0, 19),
-                              child: Text(
-                                'RM $amount',
-                                style: GoogleFonts.poppins(
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 64,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ),
-                            Container(
-                              margin: const EdgeInsets.fromLTRB(7, 0, 0, 7),
-                              child: Container(
-                                decoration: const BoxDecoration(
-                                  color: Colors.black,
-                                ),
-                                child: const SizedBox(
-                                  width: 700,
-                                  height: 3,
-                                ),
-                              ),
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Container(
-                                  margin:
-                                      const EdgeInsets.fromLTRB(102, 5, 0, 30),
-                                  child: Text(
-                                    '*Min reload: RM20',
-                                    style: GoogleFonts.poppins(
-                                      fontWeight: FontWeight.w400,
-                                      fontSize: 32,
-                                      color: const Color(0xFFEB001B),
-                                    ),
-                                  ),
-                                ),
-                                Container(
-                                  margin:
-                                      const EdgeInsets.fromLTRB(0, 5, 100, 30),
-                                  child: Text(
-                                    '*Max reload: RM500',
-                                    style: GoogleFonts.poppins(
-                                      fontWeight: FontWeight.w400,
-                                      fontSize: 32,
-                                      color: const Color(0xFFEB001B),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            _buildRow(['1', '2', '3']),
-                            _buildRow(['4', '5', '6']),
-                            _buildRow(['7', '8', '9']),
-                            _buildRow(['C', '0', 'D']),
-                            GestureDetector(
-                              onTap: () {
-                                if (isValidAmount) {
-                                  double reloadAmount = double.parse(amount);
-                                  _showReloadConfirmationDialog(
-                                      context,
-                                      widget.username,
-                                      widget.balance,
-                                      reloadAmount.toString());
-                                }
-                              },
-                              child: Container(
-                                margin: const EdgeInsets.fromLTRB(0, 0, 2, 0),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(25),
-                                  color: isValidAmount
-                                      ? const Color(0xFFF36F21)
-                                      : Colors.grey,
-                                  boxShadow: const [
-                                    BoxShadow(
-                                      color: Color(0x40000000),
-                                      offset: Offset(0, 4),
-                                      blurRadius: 2,
-                                    ),
-                                  ],
-                                ),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(50),
-                                  ),
-                                  width: 820,
-                                  height: 120,
-                                  padding:
-                                      const EdgeInsets.fromLTRB(0, 22, 0, 22),
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    'Continue',
-                                    style: GoogleFonts.poppins(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 55,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                        width: 820,
+                        height: 130,
+                        padding: const EdgeInsets.fromLTRB(0, 22, 0, 22),
+                        alignment: Alignment.center,
+                        child: Text(
+                          'Continue',
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 55,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

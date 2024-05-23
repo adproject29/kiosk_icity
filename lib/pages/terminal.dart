@@ -3,9 +3,7 @@ import 'package:flutter_app/pages/payment_success.dart';
 import 'package:flutter_app/pages/reload.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_app/app_theme.dart';
-import 'package:uuid/uuid.dart'; // Import uuid package
-import 'dart:io' show Platform; // For non-web platforms
-import 'dart:html' as html; // For web support
+import 'package:uuid/uuid.dart';
 import 'payment_error.dart';
 
 class Terminal extends StatelessWidget {
@@ -18,11 +16,11 @@ class Terminal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Generate UUID
     String deviceUUID = Uuid().v4();
     print('Generated UUID: $deviceUUID');
 
     return AppTheme.buildPage(
+      context: context, // Include inactivity timer
       child: Stack(
         clipBehavior: Clip.none,
         children: [
@@ -110,11 +108,11 @@ class Terminal extends StatelessWidget {
                           ),
                         ),
                         Container(
-                          margin: const EdgeInsets.fromLTRB(13.5, 0, 0, 0.5),
+                          margin: const EdgeInsets.fromLTRB(44, 0, 0, 0.5),
                           width: 122,
                           height: 122,
                           child: SvgPicture.asset(
-                            'assets/images/wave_icon.svg',
+                            'assets/images/contactless_icon.svg',
                           ),
                         ),
                       ],

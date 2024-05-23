@@ -22,6 +22,7 @@ class LoadingFailed extends StatelessWidget {
     redirectAfterDelay();
 
     return AppTheme.buildPage(
+      context: context,
       child: Center(
         child: Container(
           margin: const EdgeInsets.all(100),

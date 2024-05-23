@@ -15,6 +15,8 @@ dependencies:
   flutter_svg: ^2.0.10+1
   http: ^1.2.1
   uuid: ^4.4.0
+  animations: ^2.0.11
+  dio: ^4.0.0
 
 dev_dependencies:
   flutter_test:
@@ -26,52 +28,3 @@ flutter:
   assets:
     - assets/images/
     - assets/vectors/
-      # - assets/images/wave_canva.svg
-      # - assets/vectors/vector_3_x2.svg
-      # - assets/vectors/ferriswheel_2_x2.svg
-      # - assets/vectors/vector_2_x2.svg
-      # - assets/vectors/container_x2.svg
-      # - assets/vectors/ferriswheel_6_x2.svg
-      # - assets/images/ferris_wheel_911.png
-      # - assets/images/ferris_wheel_91.gif
-      # - assets/vectors/ferriswheel_5_x2.svg
-      # - assets/images/ferris_wheel_911.png
-      # - assets/images/ferris_wheel_91.gif
-      # - assets/vectors/ferriswheel_9_x2.svg
-      # - assets/images/arrow_down_11.png
-      # - assets/images/arrow_down_1.gif
-      # - assets/vectors/container_3_x2.svg
-      # - assets/vectors/visa_11_x2.svg
-      # - assets/vectors/ferriswheel_3_x2.svg
-      # - assets/vectors/mastercard_1_x2.svg
-      # - assets/images/doble_click_41.png
-      # - assets/images/doble_click_411.gif
-      # - assets/images/icity_super_app_logo_cs_61.png
-      # - assets/vectors/mastercard_11_x2.svg
-      # - assets/vectors/visa_1_x2.svg
-      # - assets/vectors/ferriswheel_x2.svg
-      # - assets/images/arrow_down_11.png
-      # - assets/images/arrow_down_111.gif
-      # - assets/images/icity_super_app_logo_cs_61.png
-      # - assets/images/rectangle_1.png
-      # - assets/vectors/group_2_x2.svg
-      # - assets/vectors/ferriswheel_4_x2.svg
-      # - assets/vectors/vector_x2.svg
-      # - assets/vectors/ferriswheel_7_x2.svg
-      # - assets/vectors/container_1_x2.svg
-      # - assets/vectors/vector_1_x2.svg
-      # - assets/vectors/ferriswheel_10_x2.svg
-      # - assets/vectors/container_2_x2.svg
-      # - assets/images/arrow_down_11.png
-      # - assets/images/approve_1.gif
-      # - assets/vectors/ferriswheel_8_x2.svg
-      # - assets/images/cross_mark_111.png
-      # - assets/images/cross_mark_11.gif
-      # - assets/vectors/ferriswheel_1_x2.svg
-      # - assets/images/wave_icon.svg
-      # - assets/images/kiosk_potrait_expand_bg_v2.svg
-      # - assets/images/Phone.svg
-      # - assets/images/phone_qr.svg
-      # - assets/vectors/wave_logo_v2.svg
-      # - assets/vectors/wave_logo.png
-      # - assets/images/card.svg

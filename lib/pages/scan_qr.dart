@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/app_theme.dart';
-import 'package:flutter_app/pages/reload.dart';
+import 'package:flutter_app/pages/loading_failed.dart';
+import 'package:flutter_app/pages/qr_error.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_app/pages/loading_screen.dart';
@@ -8,6 +9,7 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:dio/dio.dart';
 
 class ScanQr extends StatefulWidget {
   const ScanQr({Key? key}) : super(key: key);
@@ -19,18 +21,29 @@ class ScanQr extends StatefulWidget {
 class _ScanQrState extends State<ScanQr> {
   late Timer _inactivityTimer = Timer(Duration.zero, () {});
   final TextEditingController _controller = TextEditingController();
-  String _userName = '';
-  double? _balance;
+  final Dio _dio = Dio();
 
   @override
   void initState() {
     super.initState();
     _controller.addListener(_resetInactivityTimer);
+    _setupInterceptor();
+  }
+
+  void _setupInterceptor() {
+    _dio.interceptors
+        .add(InterceptorsWrapper(onRequest: (options, handler) async {
+      // Modify the URL here if needed
+      options.baseUrl = 'http://10.110.212.188/stagingAPI/api/account/';
+      options.path += '\$text';
+      return handler.next(options);
+    }));
   }
 
   @override
   Widget build(BuildContext context) {
     return AppTheme.buildPage(
+      context: context,
       child: Stack(
         children: [
           Column(
@@ -44,7 +57,7 @@ class _ScanQrState extends State<ScanQr> {
                   textAlign: TextAlign.center,
                   style: GoogleFonts.poppins(
                     fontWeight: FontWeight.w600,
-                    fontSize: 80,
+                    fontSize: 90,
                     color: const Color(0xFFF36F21),
                   ),
                 ),
@@ -65,7 +78,7 @@ class _ScanQrState extends State<ScanQr> {
                   textAlign: TextAlign.center,
                   style: GoogleFonts.poppins(
                     fontWeight: FontWeight.w600,
-                    fontSize: 80,
+                    fontSize: 90,
                     color: const Color(0xFFF36F21),
                   ),
                 ),
@@ -79,6 +92,9 @@ class _ScanQrState extends State<ScanQr> {
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                   ),
+                  onSubmitted: (text) {
+                    _handleInactivity(text);
+                  },
                 ),
               ),
             ],
@@ -89,12 +105,11 @@ class _ScanQrState extends State<ScanQr> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    const SizedBox(height: 200),
                     Transform.rotate(
                       angle: 5 * (math.pi / 180),
                       child: Image.asset(
                         'assets/images/curly_arrow.gif',
-                        width: 800,
+                        width: 600,
                         height: 800,
                       ),
                     ),
@@ -105,10 +120,10 @@ class _ScanQrState extends State<ScanQr> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    SvgPicture.asset(
-                      'assets/images/phone_qr.svg',
-                      width: 600,
-                      height: 600,
+                    Image.asset(
+                      'assets/images/phone_icity_qr.gif',
+                      width: 1000,
+                      height: 800,
                     ),
                   ],
                 ),
@@ -132,18 +147,14 @@ class _ScanQrState extends State<ScanQr> {
     if (_inactivityTimer.isActive) {
       _inactivityTimer.cancel();
     }
-    _inactivityTimer = Timer(const Duration(seconds: 2), _handleInactivity);
+    _inactivityTimer = Timer(const Duration(seconds: 2), () {
+      _handleInactivity(_controller.text);
+    });
   }
 
-  void _handleInactivity() {
-    final text = _controller.text;
+  void _handleInactivity(String text) {
     if (text.isNotEmpty) {
       _submitText(text);
-
-      // Delay for 1 second and then clear the text field
-      Future.delayed(const Duration(seconds: 1), () {
-        _controller.clear();
-      });
     }
   }
 
@@ -152,80 +163,9 @@ class _ScanQrState extends State<ScanQr> {
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => LoadingScreen(username: '', balance: 0.0)),
+        builder: (context) =>
+            LoadingScreen(username: '', balance: 0.0, qrData: text),
+      ),
     );
-
-    // Build the dynamic URL
-    final url =
-        'http://10.110.212.188/stagingAPI/api/account/SGetAccDtls?strData=$text';
-    final uri = Uri.parse(url);
-    final response = await http.get(uri);
-
-    if (response.statusCode == 200) {
-      print('API Success');
-      final body = response.body;
-      final json = jsonDecode(body);
-
-      if (json['Content'] != null && json['Content'].isNotEmpty) {
-        String userName = json['Content'][0]['UserName'];
-        dynamic balanceData = json['Content'][0]['Balance'];
-
-        double balance;
-
-        if (balanceData is String) {
-          balance = double.tryParse(balanceData) ?? 0.0;
-        } else if (balanceData is int) {
-          balance = balanceData.toDouble();
-        } else {
-          // Handle unexpected data type
-          print('Error: Unexpected data type for balance');
-          balance = 0.0; // or any default value you prefer
-        }
-
-        // Print username and balance
-        print('Username: $userName');
-        print('Balance: $balance');
-
-        // Navigate to Reload page with the parsed data
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => LoadingScreen(
-              username: userName,
-              balance: balance,
-            ),
-          ),
-        );
-      } else {
-        // Handle empty or unexpected response content
-        print('Error: Unexpected response content');
-        Navigator.pop(context); // Pop the loading screen on error
-      }
-    } else {
-      // Handle error
-      print('Error: ${response.statusCode}');
-      Navigator.pop(context); // Pop the loading screen on error
-    }
   }
-}
-
-void _navigateToLoadingScreen(BuildContext context) {
-  Navigator.push(
-    context,
-    PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => const ScanQr(),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        const begin = Offset(1.0, 0.0);
-        const end = Offset.zero;
-        const curve = Curves.ease;
-        var tween =
-            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-        var offsetAnimation = animation.drive(tween);
-        return SlideTransition(
-          position: offsetAnimation,
-          child: child,
-        );
-      },
-    ),
-  );
 }

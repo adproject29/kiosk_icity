@@ -154,33 +154,126 @@ class _ReloadState extends State<Reload> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Confirm Reload'),
-          content: Text('Are you sure you want to reload RM $amount?'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancel'),
+        return Dialog(
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(30),
+              color: Color(0xFFFFFFFF),
+              boxShadow: [
+                BoxShadow(
+                  color: Color(0x40000000),
+                  offset: Offset(0, 4),
+                  blurRadius: 2,
+                ),
+              ],
             ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => Terminal(
-                      username: username,
-                      balance: balance,
-                      amount: amount.toDouble(),
+            width: 700,
+            height: 400,
+            padding: EdgeInsets.fromLTRB(10, 20, 10, 5),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SizedBox(height: 20), // Extra space on top
+                RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 50,
+                      color: Color(0xFF000000),
                     ),
+                    children: [
+                      TextSpan(
+                        text: 'Reload ',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w400,
+                          fontSize: 64,
+                          height: 1.3,
+                        ),
+                      ),
+                      TextSpan(
+                        text: 'RM $amount ?',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 64,
+                          height: 1.3,
+                          color: Color(0xFFF36F21),
+                        ),
+                      ),
+                    ],
                   ),
-                );
-              },
-              child: Text('Confirm'),
+                ),
+                SizedBox(height: 40), // Space between text and buttons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFFFC3239),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        minimumSize:
+                            Size(150, 60), // Set minimum size for button
+                        padding: EdgeInsets.symmetric(
+                          vertical: 35,
+                          horizontal: 50,
+                        ),
+                      ),
+                      child: Text(
+                        'Cancel',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 45,
+                          color: Color(0xFFF2F3F4),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 40), // Space between buttons
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Terminal(
+                              username: username,
+                              balance: balance,
+                              amount: amount.toDouble(),
+                            ),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF4CAF50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        minimumSize:
+                            Size(150, 60), // Set minimum size for button
+                        padding: EdgeInsets.symmetric(
+                          vertical: 35,
+                          horizontal: 50,
+                        ),
+                      ),
+                      child: Text(
+                        'Confirm',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 45,
+                          color: Color(0xFFF2F3F4),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ],
+          ),
         );
       },
     );
@@ -189,6 +282,7 @@ class _ReloadState extends State<Reload> {
   @override
   Widget build(BuildContext context) {
     return AppTheme.buildPage(
+      context: context,
       child: Column(
         children: [
           Align(

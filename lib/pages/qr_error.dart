@@ -10,6 +10,7 @@ class QRError extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppTheme.buildPage(
+      context: context,
       child: Container(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

@@ -15,6 +15,7 @@ class PaymentSuccess extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppTheme.buildPage(
+      context: context,
       child: Stack(
         children: [
           Container(

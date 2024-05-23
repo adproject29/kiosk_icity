@@ -15,6 +15,7 @@ class PaymentError extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppTheme.buildPage(
+      context: context,
       child: Container(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -86,9 +87,9 @@ class PaymentError extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                         builder: (context) => Terminal(
-                              username: '',
-                              balance: 0.0,
-                              amount: 0.0,
+                              username: username,
+                              balance: balance,
+                              amount: amount,
                             )));
               },
               child: Container(

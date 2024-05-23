@@ -1,15 +1,20 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'dart:async';
+import 'package:http/http.dart' as http;
 import 'package:flutter_app/app_theme.dart';
 import 'package:flutter_app/pages/reload.dart';
+import 'package:flutter_app/pages/qr_error.dart';
 
 class LoadingScreen extends StatelessWidget {
   final String username;
   final double balance;
+  final String qrData;
 
   LoadingScreen({
     required this.username,
     required this.balance,
+    required this.qrData,
   });
 
   @override
@@ -17,15 +22,59 @@ class LoadingScreen extends StatelessWidget {
     // Get screen size
     final Size screenSize = MediaQuery.of(context).size;
 
-    // Function to redirect after delay
+    // Call redirect function after a delay
     void redirectAfterDelay() {
-      Future.delayed(const Duration(seconds: 2), () {
-        Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (context) => Reload(
-            username: username,
-            balance: balance,
-          ),
-        ));
+      Future.delayed(const Duration(seconds: 2), () async {
+        try {
+          // Make API call
+          final response = await http.get(Uri.parse(
+              'http://10.110.212.188/stagingAPI/api/account/SGetAccDtls?strData=$qrData'));
+
+          // Check if API call is successful or not
+          if (response.statusCode == 200) {
+            // Parse response data
+            final jsonData = jsonDecode(response.body);
+            if (jsonData['Content'] != null && jsonData['Content'].isNotEmpty) {
+              // Extract username and balance
+              String userName = jsonData['Content'][0]['UserName'];
+              dynamic balanceData = jsonData['Content'][0]['Balance'];
+              double balance;
+
+              if (balanceData is String) {
+                balance = double.tryParse(balanceData) ?? 0.0;
+              } else if (balanceData is int) {
+                balance = balanceData.toDouble();
+              } else {
+                balance = 0.0;
+                // Handle unexpected data type
+                print('Error: Unexpected data type for balance');
+              }
+
+              // Navigate to Reload page with the parsed data
+              Navigator.of(context).pushReplacement(MaterialPageRoute(
+                builder: (context) =>
+                    Reload(username: userName, balance: balance),
+              ));
+            } else {
+              // Navigate to QRError page if response is empty or unexpected
+              Navigator.of(context).pushReplacement(MaterialPageRoute(
+                builder: (context) => QRError(),
+              ));
+            }
+          } else {
+            // Navigate to QRError page on API call failure
+            Navigator.of(context).pushReplacement(MaterialPageRoute(
+              builder: (context) => QRError(),
+            ));
+          }
+        } catch (error) {
+          // Print the error
+          print('API Error: $error');
+          // Navigate to QRError page if an error occurs during API call
+          Navigator.of(context).pushReplacement(MaterialPageRoute(
+            builder: (context) => QRError(),
+          ));
+        }
       });
     }
 
@@ -33,6 +82,7 @@ class LoadingScreen extends StatelessWidget {
     redirectAfterDelay();
 
     return AppTheme.buildPage(
+      context: context,
       child: Center(
         child: Container(
           margin: const EdgeInsets.all(100),

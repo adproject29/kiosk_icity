@@ -7,6 +7,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppTheme.buildPage(
+      context: context,
       child: Center(
         child: SizedBox(
           width: MediaQuery.of(context).size.width - 200,
@@ -64,11 +65,11 @@ class HomeScreen extends StatelessWidget {
                               ),
                               Container(
                                 margin:
-                                    const EdgeInsets.fromLTRB(13.5, 0, 0, 0.5),
+                                    const EdgeInsets.fromLTRB(44, 0, 0, 0.5),
                                 width: 122,
                                 height: 122,
                                 child: SvgPicture.asset(
-                                  'assets/images/wave_icon.svg',
+                                  'assets/images/contactless_icon.svg',
                                 ),
                               ),
                             ],

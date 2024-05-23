@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class AppTheme {
-  static Widget buildPage({required Widget child}) {
+  static Widget buildPage(
+      {required Widget child, required BuildContext context}) {
     return Scaffold(
       body: Stack(
         children: [
@@ -32,10 +33,8 @@ class AppTheme {
                         scrollDirection: Axis.vertical,
                         child: SizedBox(
                           height: 1600,
-                          width:
-                              width, // Ensure width matches the container's width
-                          child:
-                              child, // Your HomeScreen or any other child widget
+                          width: width,
+                          child: child,
                         ),
                       ),
                     ),

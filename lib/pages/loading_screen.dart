@@ -28,7 +28,7 @@ class LoadingScreen extends StatelessWidget {
         try {
           // Make API call
           final response = await http.get(Uri.parse(
-              'http://10.110.212.188/stagingAPI/api/account/SGetAccDtls?strData=$qrData'));
+              'http://10.110.212.188/kioskAPI/api/kiosk/GetAccDetails?strData=$qrData'));
 
           // Check if API call is successful or not
           if (response.statusCode == 200) {

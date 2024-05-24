@@ -12,15 +12,16 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 
 class ScanQr extends StatefulWidget {
-  const ScanQr({Key? key}) : super(key: key);
+  const ScanQr({super.key});
 
   @override
   _ScanQrState createState() => _ScanQrState();
 }
 
 class _ScanQrState extends State<ScanQr> {
-  late Timer _inactivityTimer = Timer(Duration.zero, () {});
+  late Timer _inactivityTimer;
   final TextEditingController _controller = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
   final Dio _dio = Dio();
 
   @override
@@ -28,12 +29,13 @@ class _ScanQrState extends State<ScanQr> {
     super.initState();
     _controller.addListener(_resetInactivityTimer);
     _setupInterceptor();
+    _inactivityTimer = Timer(Duration.zero, () {}); // Initialize the timer
+    _focusNode.requestFocus();
   }
 
   void _setupInterceptor() {
     _dio.interceptors
         .add(InterceptorsWrapper(onRequest: (options, handler) async {
-      // Modify the URL here if needed
       options.baseUrl = 'http://10.110.212.188/stagingAPI/api/account/';
       options.path += '\$text';
       return handler.next(options);
@@ -50,15 +52,15 @@ class _ScanQrState extends State<ScanQr> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 100),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20.0),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 20.0),
                 child: Text(
                   'SCAN YOUR',
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.poppins(
+                  style: TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 90,
-                    color: const Color(0xFFF36F21),
+                    color: Color(0xFFF36F21),
                   ),
                 ),
               ),
@@ -88,6 +90,7 @@ class _ScanQrState extends State<ScanQr> {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: TextField(
                   controller: _controller,
+                  focusNode: _focusNode,
                   autofocus: true,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
@@ -138,8 +141,11 @@ class _ScanQrState extends State<ScanQr> {
   @override
   void dispose() {
     _controller.removeListener(_resetInactivityTimer);
-    _inactivityTimer.cancel();
+    if (_inactivityTimer.isActive) {
+      _inactivityTimer.cancel();
+    }
     _controller.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -148,7 +154,9 @@ class _ScanQrState extends State<ScanQr> {
       _inactivityTimer.cancel();
     }
     _inactivityTimer = Timer(const Duration(seconds: 2), () {
-      _handleInactivity(_controller.text);
+      if (mounted) {
+        _handleInactivity(_controller.text);
+      }
     });
   }
 
@@ -159,7 +167,7 @@ class _ScanQrState extends State<ScanQr> {
   }
 
   Future<void> _submitText(String text) async {
-    // Display loading screen
+    if (!mounted) return;
     Navigator.push(
       context,
       MaterialPageRoute(

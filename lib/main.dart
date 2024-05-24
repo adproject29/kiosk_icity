@@ -3,6 +3,7 @@ import 'package:flutter_app/home_screen.dart';
 import 'package:flutter_app/pages/loading_failed.dart';
 import 'package:flutter_app/pages/payment_success.dart';
 import 'package:flutter_app/pages/reload.dart';
+import 'package:flutter_app/pages/scan_qr.dart';
 import 'package:flutter_app/pages/terminal.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -19,13 +20,13 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(
         textTheme: GoogleFonts.poppinsTextTheme(
-          Theme.of(context).textTheme.apply(fontSizeFactor: 1.0),
+          Theme.of(context).textTheme.apply(fontSizeFactor: 0.0),
         ),
       ),
       //home: Terminal(),
       //home: PaymentError(),
-      home: HomeScreen(),
-      //home: Reload(),
+      //home: HomeScreen(),
+      home: ScanQr(),
       //home: LoadingFailed(),
       //home: Terminal(),
       //home: Terminal(),

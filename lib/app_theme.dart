@@ -1,7 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
+  static ThemeData getThemeData() {
+    return ThemeData(
+      textTheme: GoogleFonts.poppinsTextTheme().apply(
+        bodyColor: const Color(0xFFF36F21), // Default text color
+        displayColor: Colors.black, // Default display text color
+      ),
+      // elevatedButtonTheme: ElevatedButtonThemeData(
+      //   style: ElevatedButton.styleFrom(
+      //     backgroundColor: Colors.blue, // Default button color
+      //     foregroundColor: Colors.white, // Text color
+      //   ),
+      // ),
+      // textButtonTheme: TextButtonThemeData(
+      //   style: TextButton.styleFrom(
+      //     foregroundColor: Colors.blue, // Default text button color
+      //   ),
+      // ),
+      // outlinedButtonTheme: OutlinedButtonThemeData(
+      //   style: OutlinedButton.styleFrom(
+      //     foregroundColor: Colors.blue, // Default outlined button color
+      //   ),
+      // ),
+    );
+  }
+
   static Widget buildPage(
       {required Widget child, required BuildContext context}) {
     return Scaffold(

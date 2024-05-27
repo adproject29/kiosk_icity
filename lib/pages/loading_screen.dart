@@ -34,6 +34,7 @@ class LoadingScreen extends StatelessWidget {
           if (response.statusCode == 200) {
             // Parse response data
             final jsonData = jsonDecode(response.body);
+            print('Response JSON: $jsonData'); // Log response JSON
             if (jsonData['Content'] != null && jsonData['Content'].isNotEmpty) {
               // Extract username and balance
               String userName = jsonData['Content'][0]['UserName'];
@@ -57,12 +58,14 @@ class LoadingScreen extends StatelessWidget {
               ));
             } else {
               // Navigate to QRError page if response is empty or unexpected
+              print('Empty or unexpected response: $jsonData');
               Navigator.of(context).pushReplacement(MaterialPageRoute(
                 builder: (context) => QRError(),
               ));
             }
           } else {
             // Navigate to QRError page on API call failure
+            print('API call failed with status code: ${response.statusCode}');
             Navigator.of(context).pushReplacement(MaterialPageRoute(
               builder: (context) => QRError(),
             ));

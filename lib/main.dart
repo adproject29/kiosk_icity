@@ -18,15 +18,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(
-        textTheme: GoogleFonts.poppinsTextTheme(
-          Theme.of(context).textTheme.apply(fontSizeFactor: 0.0),
-        ),
-      ),
       //home: Terminal(),
       //home: PaymentError(),
-      //home: HomeScreen(),
-      home: ScanQr(),
+      home: HomeScreen(),
+      //home: ScanQr(),
+      //home: TextFieldExample(),
       //home: LoadingFailed(),
       //home: Terminal(),
       //home: Terminal(),

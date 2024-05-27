@@ -65,8 +65,8 @@ class Terminal extends StatelessWidget {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => Reload(
-                                    username: '',
-                                    balance: 0.0,
+                                    username: username,
+                                    balance: balance,
                                   ),
                                 ),
                               );

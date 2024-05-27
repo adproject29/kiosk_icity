@@ -1,14 +1,10 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/app_theme.dart';
-import 'package:flutter_app/pages/loading_failed.dart';
-import 'package:flutter_app/pages/qr_error.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_app/home_screen.dart';
 import 'package:flutter_app/pages/loading_screen.dart';
-import 'dart:async';
+import 'package:google_fonts/google_fonts.dart';
 import 'dart:math' as math;
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:dio/dio.dart';
 
 class ScanQr extends StatefulWidget {
@@ -19,7 +15,10 @@ class ScanQr extends StatefulWidget {
 }
 
 class _ScanQrState extends State<ScanQr> {
-  late Timer _inactivityTimer;
+  Timer? _activityTimer;
+  Timer? _countdownTimer;
+  int _countdownSeconds = 10;
+  bool _isDialogShowing = false;
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   final Dio _dio = Dio();
@@ -27,137 +26,291 @@ class _ScanQrState extends State<ScanQr> {
   @override
   void initState() {
     super.initState();
-    _controller.addListener(_resetInactivityTimer);
+    _controller.addListener(_resetActivityTimer);
     _setupInterceptor();
-    _inactivityTimer = Timer(Duration.zero, () {}); // Initialize the timer
     _focusNode.requestFocus();
+    resetActivityTimer();
   }
 
   void _setupInterceptor() {
     _dio.interceptors
         .add(InterceptorsWrapper(onRequest: (options, handler) async {
-      options.baseUrl = 'http://10.110.212.188/stagingAPI/api/account/';
+      options.baseUrl = 'http://10.110.212.188/kioskAPI/api/kiosk';
       options.path += '\$text';
       return handler.next(options);
     }));
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return AppTheme.buildPage(
-      context: context,
-      child: Stack(
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 100),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 20.0),
-                child: Text(
-                  'SCAN YOUR',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 90,
-                    color: Color(0xFFF36F21),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Image.asset(
-                'assets/images/icity_super_app_logo.png',
-                width: 200,
-                height: 134,
-                fit: BoxFit.cover,
-                alignment: Alignment.center,
-              ),
-              const SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20.0),
-                child: Text(
-                  'QR',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 90,
-                    color: const Color(0xFFF36F21),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: TextField(
-                  controller: _controller,
-                  focusNode: _focusNode,
-                  autofocus: true,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                  ),
-                  onSubmitted: (text) {
-                    _handleInactivity(text);
-                  },
-                ),
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Transform.rotate(
-                      angle: 5 * (math.pi / 180),
-                      child: Image.asset(
-                        'assets/images/curly_arrow.gif',
-                        width: 600,
-                        height: 800,
+  void resetActivityTimer() {
+    _activityTimer?.cancel();
+    _countdownTimer?.cancel();
+    _countdownSeconds = 30;
+
+    _activityTimer = Timer(Duration(seconds: 30), () {
+      showCountdownDialog();
+    });
+  }
+
+  void showCountdownDialog() {
+    if (!_isDialogShowing) {
+      _isDialogShowing = true;
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              startCountdown(setState);
+              return Dialog(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    color: Color(0xFFFFFFFF),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Color(0x40000000),
+                        offset: Offset(0, 4),
+                        blurRadius: 2,
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
+                  width: 700,
+                  height: 400,
+                  padding: EdgeInsets.fromLTRB(10, 20, 10, 5),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SizedBox(height: 40), // Extra space on top
+                      RichText(
+                        textAlign: TextAlign.center,
+                        text: TextSpan(
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 50,
+                            color: Color(0xFF000000),
+                          ),
+                          children: [
+                            TextSpan(
+                              text: '$_countdownSeconds',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 64,
+                                height: 1.3,
+                                color: Color(0xFFF36F21),
+                              ),
+                            ),
+                            TextSpan(
+                              text: ' seconds \n',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w400,
+                                fontSize: 64,
+                                height: 1.3,
+                              ),
+                            ),
+                            TextSpan(
+                              text: 'Do you want to continue?',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w400,
+                                fontSize: 50,
+                                height: 1.3,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 40), // Space between text and buttons
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              resetActivityTimer();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xFF4CAF50),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              minimumSize:
+                                  Size(150, 60), // Set minimum size for button
+                              padding: EdgeInsets.symmetric(
+                                vertical: 35,
+                                horizontal: 50,
+                              ),
+                            ),
+                            child: Text(
+                              'Continue',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 45,
+                                color: Color(0xFFF2F3F4),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Image.asset(
-                      'assets/images/phone_icity_qr.gif',
-                      width: 1000,
-                      height: 800,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
+              );
+            },
+          );
+        },
+      ).then((_) {
+        _isDialogShowing = false;
+        _countdownTimer?.cancel();
+      });
+    }
+  }
+
+  void startCountdown(StateSetter setState) {
+    const countdownInterval =
+        Duration(seconds: 1); // Adjust this interval as needed
+    _countdownTimer = Timer.periodic(countdownInterval, (timer) {
+      setState(() {
+        if (_countdownSeconds > 0) {
+          _countdownSeconds--;
+        } else {
+          timer.cancel();
+          Navigator.of(context).pop();
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => HomeScreen()),
+            (Route<dynamic> route) => false,
+          );
+        }
+      });
+    });
   }
 
   @override
   void dispose() {
-    _controller.removeListener(_resetInactivityTimer);
-    if (_inactivityTimer.isActive) {
-      _inactivityTimer.cancel();
-    }
+    _controller.removeListener(_resetActivityTimer);
+    _activityTimer?.cancel();
+    _countdownTimer?.cancel();
     _controller.dispose();
     _focusNode.dispose();
     super.dispose();
   }
 
-  void _resetInactivityTimer() {
-    if (_inactivityTimer.isActive) {
-      _inactivityTimer.cancel();
+  void _resetActivityTimer() {
+    if (_activityTimer != null && _activityTimer!.isActive) {
+      _activityTimer!.cancel();
     }
-    _inactivityTimer = Timer(const Duration(seconds: 2), () {
-      if (mounted) {
-        _handleInactivity(_controller.text);
-      }
-    });
+    resetActivityTimer();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: resetActivityTimer,
+      onPanUpdate: (_) => resetActivityTimer(),
+      child: AppTheme.buildPage(
+        context: context,
+        child: Stack(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 100),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20.0),
+                  child: Text(
+                    'SCAN YOUR',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 90,
+                      color: Color(0xFFF36F21),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Image.asset(
+                  'assets/images/icity_super_app_logo.png',
+                  width: 200,
+                  height: 134,
+                  fit: BoxFit.cover,
+                  alignment: Alignment.center,
+                ),
+                const SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20.0),
+                  child: Text(
+                    'QR',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 90,
+                      color: const Color(0xFFF36F21),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color:
+                          Colors.white.withOpacity(0.5), // Set the opacity here
+                      borderRadius: BorderRadius.circular(
+                          8.0), // Optional: Add rounded corners
+                    ),
+                    child: TextField(
+                      controller: _controller,
+                      focusNode: _focusNode,
+                      autofocus: true,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(
+                          borderSide:
+                              BorderSide.none, // Remove the default border
+                        ),
+                      ),
+                      onSubmitted: (text) {
+                        _handleInactivity(text);
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Transform.rotate(
+                        angle: 5 * (math.pi / 180),
+                        child: Image.asset(
+                          'assets/images/curly_arrow.gif',
+                          width: 600,
+                          height: 800,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Image.asset(
+                        'assets/images/phone_icity_qr.gif',
+                        width: 1000,
+                        height: 800,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _handleInactivity(String text) {

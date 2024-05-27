@@ -1,9 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter_app/app_theme.dart';
 import 'package:flutter_app/pages/scan_qr.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _fetchUuidFromLocalService();
+  }
+
   @override
   Widget build(BuildContext context) {
     return AppTheme.buildPage(
@@ -97,7 +109,7 @@ class HomeScreen extends StatelessWidget {
                               'Reload i-City SuperApp Credit',
                               style: TextStyle(
                                 fontWeight: FontWeight.w700,
-                                fontSize: 80,
+                                fontSize: 90,
                                 color: Color(0xFFF2F3F4),
                               ),
                             ),
@@ -155,5 +167,37 @@ class HomeScreen extends StatelessWidget {
         },
       ),
     );
+  }
+
+  Future<void> _fetchUuidFromLocalService() async {
+    try {
+      final response =
+          await http.get(Uri.parse('http://localhost:8000/service/getuuid'));
+
+      if (response.statusCode == 200) {
+        final uuid = response.body
+            .trim(); // Read the response body as the UUID and trim any whitespace
+        _fetchUuidFromRemoteService(uuid);
+      } else {
+        print('Failed to fetch UUID from local service');
+      }
+    } catch (e) {
+      print('Error fetching UUID from local service: $e');
+    }
+  }
+
+  Future<void> _fetchUuidFromRemoteService(String uuid) async {
+    try {
+      final response = await http.get(Uri.parse(
+          'http://10.110.212.188/kioskAPI/api/kiosk/GetTerminal?UUID=$uuid'));
+
+      if (response.statusCode == 200) {
+        print('UUID from remote service: ${response.body}');
+      } else {
+        print('Failed to fetch UUID from remote service');
+      }
+    } catch (e) {
+      print('Error fetching UUID from remote service: $e');
+    }
   }
 }

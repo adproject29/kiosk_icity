@@ -9,7 +9,8 @@ class Reload extends StatefulWidget {
   final String username;
   final double balance;
 
-  Reload({
+  const Reload({
+    super.key,
     required this.username,
     required this.balance,
   });
@@ -24,6 +25,7 @@ class _ReloadState extends State<Reload> {
   bool isContinueDisabled = false;
   double minReloadOpacity = 0.0;
   double maxReloadOpacity = 0.0;
+  String pressedButton = '';
 
   void onNumberPressed(String number) {
     setState(() {
@@ -74,11 +76,13 @@ class _ReloadState extends State<Reload> {
 
   Widget _buildButton(String button) {
     bool isDisabled = amount > 500 && button != 'C' && button != 'D';
+    bool isPressed = pressedButton == button;
 
     return GestureDetector(
       onTapDown: (_) {
         if (!isDisabled) {
           setState(() {
+            pressedButton = button;
             if (button == 'C') {
               onClearPressed();
             } else if (button == 'D') {
@@ -89,47 +93,74 @@ class _ReloadState extends State<Reload> {
           });
         }
       },
-      child: Container(
-        width: 250,
-        margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-        padding: const EdgeInsets.fromLTRB(0, 30, 0, 30),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(40),
-          color: button == 'C' ? Colors.red : Colors.grey[300],
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x40000000),
-              offset: Offset(0, 4),
-              blurRadius: 2,
-            ),
-          ],
-        ),
-        child: Center(
-          child: button == 'C'
-              ? Text(
-                  'Clear',
-                  style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 55,
-                    color: Colors.white,
-                  ),
-                )
-              : button == 'D'
-                  ? SizedBox(
-                      width: 64,
-                      height: 80,
-                      child: SvgPicture.asset(
-                        'assets/vectors/delete.svg',
-                      ),
-                    )
-                  : Text(
-                      button,
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 55,
-                        color: isDisabled ? Colors.grey : Colors.black,
-                      ),
+      onTapUp: (_) {
+        setState(() {
+          pressedButton = '';
+        });
+      },
+      onTapCancel: () {
+        setState(() {
+          pressedButton = '';
+        });
+      },
+      child: MouseRegion(
+        onEnter: (_) {
+          if (!isDisabled) {
+            setState(() {});
+          }
+        },
+        onExit: (_) {
+          if (!isDisabled) {
+            setState(() {});
+          }
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 100),
+          width: 250,
+          margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+          padding: const EdgeInsets.fromLTRB(0, 30, 0, 30),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(40),
+            color: isPressed
+                ? Colors.orange
+                : button == 'C'
+                    ? Colors.red
+                    : Colors.grey[300],
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x40000000),
+                offset: Offset(0, 4),
+                blurRadius: 2,
+              ),
+            ],
+          ),
+          child: Center(
+            child: button == 'C'
+                ? Text(
+                    'Clear',
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 55,
+                      color: Colors.white,
                     ),
+                  )
+                : button == 'D'
+                    ? SizedBox(
+                        width: 64,
+                        height: 80,
+                        child: SvgPicture.asset(
+                          'assets/vectors/delete.svg',
+                        ),
+                      )
+                    : Text(
+                        button,
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 55,
+                          color: isDisabled ? Colors.grey : Colors.black,
+                        ),
+                      ),
+          ),
         ),
       ),
     );
@@ -158,8 +189,8 @@ class _ReloadState extends State<Reload> {
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(30),
-              color: Color(0xFFFFFFFF),
-              boxShadow: [
+              color: const Color(0xFFFFFFFF),
+              boxShadow: const [
                 BoxShadow(
                   color: Color(0x40000000),
                   offset: Offset(0, 4),
@@ -168,35 +199,35 @@ class _ReloadState extends State<Reload> {
               ],
             ),
             width: 700,
-            height: 400,
-            padding: EdgeInsets.fromLTRB(10, 20, 10, 5),
+            height: 460,
+            padding: const EdgeInsets.fromLTRB(10, 20, 10, 5),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                SizedBox(height: 20), // Extra space on top
+                const SizedBox(height: 20), // Extra space on top
                 RichText(
                   textAlign: TextAlign.center,
                   text: TextSpan(
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 50,
                       color: Color(0xFF000000),
                     ),
                     children: [
-                      TextSpan(
-                        text: 'Reload ',
+                      const TextSpan(
+                        text: 'Reload\n',
                         style: TextStyle(
                           fontWeight: FontWeight.w400,
-                          fontSize: 64,
+                          fontSize: 70,
                           height: 1.3,
                         ),
                       ),
                       TextSpan(
                         text: 'RM $amount ?',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 64,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 70,
                           height: 1.3,
                           color: Color(0xFFF36F21),
                         ),
@@ -204,7 +235,7 @@ class _ReloadState extends State<Reload> {
                     ],
                   ),
                 ),
-                SizedBox(height: 40), // Space between text and buttons
+                const SizedBox(height: 40), // Space between text and buttons
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -213,18 +244,18 @@ class _ReloadState extends State<Reload> {
                         Navigator.of(context).pop();
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFFFC3239),
+                        backgroundColor: const Color(0xFFFC3239),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
                         ),
                         minimumSize:
-                            Size(150, 60), // Set minimum size for button
-                        padding: EdgeInsets.symmetric(
+                            const Size(150, 60), // Set minimum size for button
+                        padding: const EdgeInsets.symmetric(
                           vertical: 35,
                           horizontal: 50,
                         ),
                       ),
-                      child: Text(
+                      child: const Text(
                         'Cancel',
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
@@ -233,34 +264,52 @@ class _ReloadState extends State<Reload> {
                         ),
                       ),
                     ),
-                    SizedBox(width: 40), // Space between buttons
+                    const SizedBox(width: 40), // Space between buttons
                     ElevatedButton(
                       onPressed: () {
                         Navigator.of(context).pop();
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                            builder: (context) => Terminal(
-                              username: username,
-                              balance: balance,
-                              amount: amount.toDouble(),
-                            ),
+                          PageRouteBuilder(
+                            transitionDuration: const Duration(seconds: 1),
+                            pageBuilder:
+                                (context, animation, secondaryAnimation) {
+                              return Terminal(
+                                username: username,
+                                balance: balance,
+                                amount: amount.toDouble(),
+                              );
+                            },
+                            transitionsBuilder: (context, animation,
+                                secondaryAnimation, child) {
+                              var begin = const Offset(1.0, 0.0);
+                              var end = Offset.zero;
+                              var curve = Curves.easeInOut;
+
+                              var tween = Tween(begin: begin, end: end)
+                                  .chain(CurveTween(curve: curve));
+
+                              return SlideTransition(
+                                position: animation.drive(tween),
+                                child: child,
+                              );
+                            },
                           ),
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF4CAF50),
+                        backgroundColor: const Color(0xFF4CAF50),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
                         ),
                         minimumSize:
-                            Size(150, 60), // Set minimum size for button
-                        padding: EdgeInsets.symmetric(
+                            const Size(150, 60), // Set minimum size for button
+                        padding: const EdgeInsets.symmetric(
                           vertical: 35,
                           horizontal: 50,
                         ),
                       ),
-                      child: Text(
+                      child: const Text(
                         'Confirm',
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
@@ -285,92 +334,89 @@ class _ReloadState extends State<Reload> {
       context: context,
       child: Column(
         children: [
-          Align(
-            child: Stack(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(50, 50, 10, 0),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(30),
-                        color: Colors.white,
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Color(0x40000000),
-                            offset: Offset(0, 4),
-                            blurRadius: 2,
-                          ),
-                        ],
+          Row(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                      transitionDuration: const Duration(seconds: 1),
+                      pageBuilder: (context, animation, secondaryAnimation) {
+                        return const ScanQr();
+                      },
+                      transitionsBuilder:
+                          (context, animation, secondaryAnimation, child) {
+                        var begin = const Offset(-1.0, 0.0);
+                        var end = Offset.zero;
+                        var curve = Curves.easeInOut;
+
+                        var tween = Tween(begin: begin, end: end)
+                            .chain(CurveTween(curve: curve));
+
+                        return SlideTransition(
+                          position: animation.drive(tween),
+                          child: child,
+                        );
+                      },
+                    ),
+                  );
+                },
+                child: Container(
+                  margin: const EdgeInsets.fromLTRB(50, 50, 10, 0),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    color: Colors.white,
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x40000000),
+                        offset: Offset(0, 4),
+                        blurRadius: 2,
                       ),
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => Reload(
-                                username: widget.username,
-                                balance: 0.0,
-                              ),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          width: 150,
-                          height: 150,
-                          padding: const EdgeInsets.fromLTRB(20, 35, 33, 34),
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const ScanQr(),
-                                ),
-                              );
-                            },
-                            child: SizedBox(
-                              width: 43,
-                              height: 81,
-                              child: SvgPicture.asset(
-                                'assets/vectors/arrow_back.svg',
-                              ),
-                            ),
-                          ),
-                        ),
+                    ],
+                  ),
+                  child: Container(
+                    width: 150,
+                    height: 150,
+                    padding: const EdgeInsets.fromLTRB(20, 35, 33, 34),
+                    child: SizedBox(
+                      width: 43,
+                      height: 81,
+                      child: SvgPicture.asset(
+                        'assets/vectors/arrow_back.svg',
                       ),
                     ),
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(10, 130, 0, 19),
-                      child: Text(
-                        widget.username,
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 40,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-                Positioned(
-                  left: 220,
-                  top: 85,
-                  child: SizedBox(
-                    height: 60,
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(10, 100, 0, 0),
                     child: Text(
                       'Hi,',
                       style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w400,
+                        fontWeight: FontWeight.w300,
                         fontSize: 40,
                         color: Colors.black,
                       ),
                     ),
                   ),
-                )
-              ],
-            ),
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(10, 0, 0, 19),
+                    child: Text(
+                      '${widget.username}',
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 40,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
           Container(
             margin: const EdgeInsets.fromLTRB(310, 0, 0, 12),
@@ -479,37 +525,37 @@ class _ReloadState extends State<Reload> {
                   _buildRow(['4', '5', '6']),
                   _buildRow(['7', '8', '9']),
                   _buildRow(['C', '0', 'D']),
-                  GestureDetector(
-                    onTap: () {
-                      if (isValidAmount) {
-                        _showReloadConfirmationDialog(
-                          context,
-                          widget.username,
-                          widget.balance,
-                          amount,
-                        );
-                      }
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.fromLTRB(0, 0, 2, 0),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(25),
-                        color: isContinueDisabled
-                            ? Colors.grey
-                            : isValidAmount
-                                ? const Color(0xFF4CAF50)
-                                : Colors.grey,
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Color(0x40000000),
-                            offset: Offset(0, 4),
-                            blurRadius: 2,
-                          ),
-                        ],
-                      ),
+                  Positioned(
+                    top: MediaQuery.of(context).size.height *
+                        0.75, // Adjust the percentage as needed
+                    right: 20,
+                    child: GestureDetector(
+                      onTap: () {
+                        if (isValidAmount) {
+                          _showReloadConfirmationDialog(
+                            context,
+                            widget.username,
+                            widget.balance,
+                            amount,
+                          );
+                        }
+                      },
                       child: Container(
+                        margin: const EdgeInsets.fromLTRB(0, 0, 2, 0),
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(50),
+                          borderRadius: BorderRadius.circular(25),
+                          color: isContinueDisabled
+                              ? Colors.grey
+                              : isValidAmount
+                                  ? const Color(0xFF4CAF50)
+                                  : Colors.grey,
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color(0x40000000),
+                              offset: Offset(0, 4),
+                              blurRadius: 2,
+                            ),
+                          ],
                         ),
                         width: 820,
                         height: 130,

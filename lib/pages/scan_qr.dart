@@ -17,6 +17,7 @@ class ScanQr extends StatefulWidget {
 class _ScanQrState extends State<ScanQr> {
   Timer? _activityTimer;
   Timer? _countdownTimer;
+  Timer? _textTimer;
   int _countdownSeconds = 10;
   bool _isDialogShowing = false;
   final TextEditingController _controller = TextEditingController();
@@ -27,9 +28,9 @@ class _ScanQrState extends State<ScanQr> {
   void initState() {
     super.initState();
     _controller.addListener(_resetActivityTimer);
+    _controller.addListener(_startTextTimer);
     _setupInterceptor();
     _focusNode.requestFocus();
-    resetActivityTimer();
   }
 
   void _setupInterceptor() {
@@ -39,16 +40,6 @@ class _ScanQrState extends State<ScanQr> {
       options.path += '\$text';
       return handler.next(options);
     }));
-  }
-
-  void resetActivityTimer() {
-    _activityTimer?.cancel();
-    _countdownTimer?.cancel();
-    _countdownSeconds = 30;
-
-    _activityTimer = Timer(Duration(seconds: 30), () {
-      showCountdownDialog();
-    });
   }
 
   void showCountdownDialog() {
@@ -65,8 +56,8 @@ class _ScanQrState extends State<ScanQr> {
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(30),
-                    color: Color(0xFFFFFFFF),
-                    boxShadow: [
+                    color: const Color(0xFFFFFFFF),
+                    boxShadow: const [
                       BoxShadow(
                         color: Color(0x40000000),
                         offset: Offset(0, 4),
@@ -76,16 +67,16 @@ class _ScanQrState extends State<ScanQr> {
                   ),
                   width: 700,
                   height: 400,
-                  padding: EdgeInsets.fromLTRB(10, 20, 10, 5),
+                  padding: const EdgeInsets.fromLTRB(10, 20, 10, 5),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      SizedBox(height: 40), // Extra space on top
+                      const SizedBox(height: 40), // Extra space on top
                       RichText(
                         textAlign: TextAlign.center,
                         text: TextSpan(
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 50,
                             color: Color(0xFF000000),
@@ -93,14 +84,14 @@ class _ScanQrState extends State<ScanQr> {
                           children: [
                             TextSpan(
                               text: '$_countdownSeconds',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 64,
                                 height: 1.3,
                                 color: Color(0xFFF36F21),
                               ),
                             ),
-                            TextSpan(
+                            const TextSpan(
                               text: ' seconds \n',
                               style: TextStyle(
                                 fontWeight: FontWeight.w400,
@@ -108,7 +99,7 @@ class _ScanQrState extends State<ScanQr> {
                                 height: 1.3,
                               ),
                             ),
-                            TextSpan(
+                            const TextSpan(
                               text: 'Do you want to continue?',
                               style: TextStyle(
                                 fontWeight: FontWeight.w400,
@@ -119,28 +110,28 @@ class _ScanQrState extends State<ScanQr> {
                           ],
                         ),
                       ),
-                      SizedBox(height: 40), // Space between text and buttons
+                      const SizedBox(
+                          height: 40), // Space between text and buttons
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           ElevatedButton(
                             onPressed: () {
                               Navigator.of(context).pop();
-                              resetActivityTimer();
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFF4CAF50),
+                              backgroundColor: const Color(0xFF4CAF50),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(30),
                               ),
-                              minimumSize:
-                                  Size(150, 60), // Set minimum size for button
-                              padding: EdgeInsets.symmetric(
+                              minimumSize: const Size(
+                                  150, 60), // Set minimum size for button
+                              padding: const EdgeInsets.symmetric(
                                 vertical: 35,
                                 horizontal: 50,
                               ),
                             ),
-                            child: Text(
+                            child: const Text(
                               'Continue',
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
@@ -177,7 +168,7 @@ class _ScanQrState extends State<ScanQr> {
           Navigator.of(context).pop();
           Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(builder: (context) => HomeScreen()),
+            MaterialPageRoute(builder: (context) => const HomeScreen()),
             (Route<dynamic> route) => false,
           );
         }
@@ -188,8 +179,10 @@ class _ScanQrState extends State<ScanQr> {
   @override
   void dispose() {
     _controller.removeListener(_resetActivityTimer);
+    _controller.removeListener(_startTextTimer);
     _activityTimer?.cancel();
     _countdownTimer?.cancel();
+    _textTimer?.cancel();
     _controller.dispose();
     _focusNode.dispose();
     super.dispose();
@@ -199,14 +192,26 @@ class _ScanQrState extends State<ScanQr> {
     if (_activityTimer != null && _activityTimer!.isActive) {
       _activityTimer!.cancel();
     }
-    resetActivityTimer();
+  }
+
+  void _startTextTimer() {
+    if (_textTimer != null && _textTimer!.isActive) {
+      _textTimer!.cancel();
+    }
+    _textTimer = Timer(const Duration(seconds: 1), () {
+      if (_controller.text.isNotEmpty) {
+        _handleInactivity(_controller.text);
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: resetActivityTimer,
-      onPanUpdate: (_) => resetActivityTimer(),
+      onTap: () {
+        FocusScope.of(context)
+            .requestFocus(_focusNode); // Ensure the text field remains focused
+      },
       child: AppTheme.buildPage(
         context: context,
         child: Stack(
@@ -251,26 +256,29 @@ class _ScanQrState extends State<ScanQr> {
                 const SizedBox(height: 20),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color:
-                          Colors.white.withOpacity(0.5), // Set the opacity here
-                      borderRadius: BorderRadius.circular(
-                          8.0), // Optional: Add rounded corners
-                    ),
-                    child: TextField(
-                      controller: _controller,
-                      focusNode: _focusNode,
-                      autofocus: true,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(
-                          borderSide:
-                              BorderSide.none, // Remove the default border
-                        ),
+                  child: Opacity(
+                    opacity: 0,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0),
+                        borderRadius: BorderRadius.circular(8.0),
                       ),
-                      onSubmitted: (text) {
-                        _handleInactivity(text);
-                      },
+                      child: TextField(
+                        controller: _controller,
+                        focusNode: _focusNode,
+                        autofocus: true,
+                        style: TextStyle(
+                          color: Colors.black.withOpacity(0),
+                        ),
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        onSubmitted: (text) {
+                          _handleInactivity(text);
+                        },
+                      ),
                     ),
                   ),
                 ),
@@ -323,9 +331,24 @@ class _ScanQrState extends State<ScanQr> {
     if (!mounted) return;
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) =>
-            LoadingScreen(username: '', balance: 0.0, qrData: text),
+      PageRouteBuilder(
+        transitionDuration: const Duration(seconds: 1),
+        pageBuilder: (context, animation, secondaryAnimation) {
+          return LoadingScreen(username: '', balance: 0.0, qrData: text);
+        },
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          var begin = const Offset(1.0, 0.0);
+          var end = Offset.zero;
+          var curve = Curves.easeInOut;
+
+          var tween =
+              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+          return SlideTransition(
+            position: animation.drive(tween),
+            child: child,
+          );
+        },
       ),
     );
   }

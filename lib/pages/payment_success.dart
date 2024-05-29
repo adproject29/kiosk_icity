@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/home_screen.dart';
+import 'package:flutter_app/pages/loading_uuid.dart';
 import 'package:flutter_app/pages/reload.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_app/app_theme.dart';
@@ -9,8 +9,12 @@ class PaymentSuccess extends StatelessWidget {
   final String username;
   final double balance;
 
-  PaymentSuccess(
-      {required this.amount, required this.username, required this.balance});
+  const PaymentSuccess({
+    super.key,
+    required this.amount,
+    required this.username,
+    required this.balance,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +47,7 @@ class PaymentSuccess extends StatelessWidget {
                 Container(
                   margin: const EdgeInsets.fromLTRB(0, 0, 13, 13),
                   child: Text(
-                    'RM $amount.00 ',
+                    'RM ${amount.toStringAsFixed(0)}.00 ',
                     style: GoogleFonts.getFont(
                       'Poppins',
                       fontWeight: FontWeight.w600,
@@ -102,22 +106,41 @@ class PaymentSuccess extends StatelessWidget {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                            builder: (context) => Reload(
-                              username: username,
-                              balance: balance,
-                            ),
+                          PageRouteBuilder(
+                            transitionDuration: const Duration(seconds: 1),
+                            pageBuilder:
+                                (context, animation, secondaryAnimation) {
+                              return Reload(
+                                username: username,
+                                balance: balance,
+                              );
+                            },
+                            transitionsBuilder: (context, animation,
+                                secondaryAnimation, child) {
+                              var begin = const Offset(-1.0, 0.0);
+                              var end = Offset.zero;
+                              var curve = Curves.easeInOut;
+
+                              var tween = Tween(begin: begin, end: end)
+                                  .chain(CurveTween(curve: curve));
+
+                              return SlideTransition(
+                                position: animation.drive(tween),
+                                child: child,
+                              );
+                            },
                           ),
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor: const Color(0xFFF36F21),
+                        backgroundColor: Colors.transparent,
+                        side: const BorderSide(
+                            color: Color(0xFFF36F21), width: 2),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
                         ),
-                        elevation: 2,
-                        shadowColor: const Color(0x40000000),
+                        elevation: 0,
+                        shadowColor: Colors.transparent,
                       ),
                       child: Container(
                         padding: const EdgeInsets.fromLTRB(10, 30, 10, 38),
@@ -128,7 +151,7 @@ class PaymentSuccess extends StatelessWidget {
                             'Poppins',
                             fontWeight: FontWeight.w600,
                             fontSize: 40,
-                            color: const Color(0xFFFFFFFF),
+                            color: const Color(0xFFF36F21),
                           ),
                         ),
                       ),
@@ -138,13 +161,30 @@ class PaymentSuccess extends StatelessWidget {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                            builder: (context) => HomeScreen(),
+                          PageRouteBuilder(
+                            transitionDuration: const Duration(seconds: 1),
+                            pageBuilder:
+                                (context, animation, secondaryAnimation) {
+                              return const LoadingUUID();
+                            },
+                            transitionsBuilder: (context, animation,
+                                secondaryAnimation, child) {
+                              var begin = const Offset(-1.0, 0.0);
+                              var end = Offset.zero;
+                              var curve = Curves.easeInOut;
+
+                              var tween = Tween(begin: begin, end: end)
+                                  .chain(CurveTween(curve: curve));
+
+                              return SlideTransition(
+                                position: animation.drive(tween),
+                                child: child,
+                              );
+                            },
                           ),
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
                         backgroundColor: const Color(0xFFF36F21),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),

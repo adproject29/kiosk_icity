@@ -3,7 +3,6 @@ import 'package:flutter_app/pages/payment_success.dart';
 import 'package:flutter_app/pages/reload.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_app/app_theme.dart';
-import 'package:uuid/uuid.dart';
 import 'payment_error.dart';
 
 class Terminal extends StatelessWidget {
@@ -11,14 +10,15 @@ class Terminal extends StatelessWidget {
   final double balance;
   final double amount;
 
-  Terminal(
-      {required this.username, required this.balance, required this.amount});
+  const Terminal({
+    super.key,
+    required this.username,
+    required this.balance,
+    required this.amount,
+  });
 
   @override
   Widget build(BuildContext context) {
-    String deviceUUID = Uuid().v4();
-    print('Generated UUID: $deviceUUID');
-
     return AppTheme.buildPage(
       context: context, // Include inactivity timer
       child: Stack(
@@ -29,11 +29,28 @@ class Terminal extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => Reload(
-                      username: username,
-                      balance: balance,
-                    ),
+                  PageRouteBuilder(
+                    transitionDuration: const Duration(seconds: 1),
+                    pageBuilder: (context, animation, secondaryAnimation) {
+                      return Reload(
+                        username: username,
+                        balance: balance,
+                      );
+                    },
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                      var begin = const Offset(-1.0, 0.0);
+                      var end = Offset.zero;
+                      var curve = Curves.easeInOut;
+
+                      var tween = Tween(begin: begin, end: end)
+                          .chain(CurveTween(curve: curve));
+
+                      return SlideTransition(
+                        position: animation.drive(tween),
+                        child: child,
+                      );
+                    },
                   ),
                 );
               },
@@ -63,11 +80,30 @@ class Terminal extends StatelessWidget {
                             onTap: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(
-                                  builder: (context) => Reload(
-                                    username: username,
-                                    balance: balance,
-                                  ),
+                                PageRouteBuilder(
+                                  transitionDuration:
+                                      const Duration(seconds: 1),
+                                  pageBuilder:
+                                      (context, animation, secondaryAnimation) {
+                                    return Reload(
+                                      username: username,
+                                      balance: balance,
+                                    );
+                                  },
+                                  transitionsBuilder: (context, animation,
+                                      secondaryAnimation, child) {
+                                    var begin = const Offset(-1.0, 0.0);
+                                    var end = Offset.zero;
+                                    var curve = Curves.easeInOut;
+
+                                    var tween = Tween(begin: begin, end: end)
+                                        .chain(CurveTween(curve: curve));
+
+                                    return SlideTransition(
+                                      position: animation.drive(tween),
+                                      child: child,
+                                    );
+                                  },
                                 ),
                               );
                             },

@@ -5,17 +5,13 @@ import 'package:flutter_app/app_theme.dart';
 import 'package:flutter_app/pages/scan_qr.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  @override
-  void initState() {
-    super.initState();
-    _fetchUuidFromLocalService();
-  }
-
   @override
   Widget build(BuildContext context) {
     return AppTheme.buildPage(
@@ -152,52 +148,24 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.push(
       context,
       PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => const ScanQr(),
+        transitionDuration: const Duration(seconds: 1),
+        pageBuilder: (context, animation, secondaryAnimation) {
+          return const ScanQr(); // Navigate to the ScanQr page
+        },
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(1.0, 0.0);
-          const end = Offset.zero;
-          const curve = Curves.ease;
+          var begin = const Offset(1.0, 0.0);
+          var end = Offset.zero;
+          var curve = Curves.easeInOut;
+
           var tween =
               Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-          var offsetAnimation = animation.drive(tween);
+
           return SlideTransition(
-            position: offsetAnimation,
+            position: animation.drive(tween),
             child: child,
           );
         },
       ),
     );
-  }
-
-  Future<void> _fetchUuidFromLocalService() async {
-    try {
-      final response =
-          await http.get(Uri.parse('http://localhost:8000/service/getuuid'));
-
-      if (response.statusCode == 200) {
-        final uuid = response.body
-            .trim(); // Read the response body as the UUID and trim any whitespace
-        _fetchUuidFromRemoteService(uuid);
-      } else {
-        print('Failed to fetch UUID from local service');
-      }
-    } catch (e) {
-      print('Error fetching UUID from local service: $e');
-    }
-  }
-
-  Future<void> _fetchUuidFromRemoteService(String uuid) async {
-    try {
-      final response = await http.get(Uri.parse(
-          'http://10.110.212.188/kioskAPI/api/kiosk/GetTerminal?UUID=$uuid'));
-
-      if (response.statusCode == 200) {
-        print('UUID from remote service: ${response.body}');
-      } else {
-        print('Failed to fetch UUID from remote service');
-      }
-    } catch (e) {
-      print('Error fetching UUID from remote service: $e');
-    }
   }
 }

@@ -1,20 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/pages/loading_uuid.dart';
-import 'package:flutter_app/pages/terminal.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_app/app_theme.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-class PaymentError extends StatelessWidget {
-  final double amount;
-  final String username;
-  final double balance;
+class UUIDError extends StatelessWidget {
+  final String? uuid;
 
-  const PaymentError({
-    super.key,
-    required this.amount,
-    required this.username,
-    required this.balance,
-  });
+  const UUIDError({super.key, this.uuid});
 
   @override
   Widget build(BuildContext context) {
@@ -43,9 +35,9 @@ class PaymentError extends StatelessWidget {
               ),
             ),
             Container(
-              margin: const EdgeInsets.fromLTRB(0, 0, 0, 383),
+              margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
               child: Text(
-                'Payment Error',
+                'UUID Undefined',
                 style: GoogleFonts.getFont(
                   'Poppins',
                   fontWeight: FontWeight.w600,
@@ -54,51 +46,42 @@ class PaymentError extends StatelessWidget {
                 ),
               ),
             ),
-            GestureDetector(
-              onTap: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const LoadingUUID(),
-                  ),
-                );
-              },
-              child: Container(
-                margin: const EdgeInsets.only(bottom: 30),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: const Color(0xFFFC3239)),
-                      borderRadius: BorderRadius.circular(25),
-                      color: const Color(0xFFFFFFFF),
-                    ),
-                    width: 742,
-                    padding: const EdgeInsets.fromLTRB(0, 30, 0, 37),
-                    child: Text(
-                      'Cancel',
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.getFont(
-                        'Poppins',
-                        fontWeight: FontWeight.w600,
-                        fontSize: 40,
-                        color: const Color(0xFFFC3239),
-                      ),
-                    ),
+            if (uuid != null)
+              Container(
+                margin: const EdgeInsets.fromLTRB(0, 0, 0, 600),
+                child: Text(
+                  'UUID: $uuid',
+                  style: GoogleFonts.getFont(
+                    'Poppins',
+                    fontWeight: FontWeight.w600,
+                    fontSize: 20,
+                    color: const Color.fromARGB(255, 0, 0, 0),
                   ),
                 ),
               ),
-            ),
             GestureDetector(
               onTap: () {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => Terminal(
-                      username: username,
-                      balance: balance,
-                      amount: amount,
-                    ),
+                  PageRouteBuilder(
+                    transitionDuration: const Duration(seconds: 1),
+                    pageBuilder: (context, animation, secondaryAnimation) {
+                      return const LoadingUUID(); // Navigate to LoadingUUID with animation
+                    },
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                      var begin = const Offset(1.0, 0.0);
+                      var end = Offset.zero;
+                      var curve = Curves.easeInOut;
+
+                      var tween = Tween(begin: begin, end: end)
+                          .chain(CurveTween(curve: curve));
+
+                      return SlideTransition(
+                        position: animation.drive(tween),
+                        child: child,
+                      );
+                    },
                   ),
                 );
               },

@@ -7,7 +7,7 @@ class AnimatedContent extends StatefulWidget {
   final Widget child;
   final bool includeInactivityTimer;
   const AnimatedContent(
-      {required this.child, this.includeInactivityTimer = true});
+      {super.key, required this.child, this.includeInactivityTimer = true});
 
   @override
   _AnimatedContentState createState() => _AnimatedContentState();
@@ -36,7 +36,7 @@ class _AnimatedContentState extends State<AnimatedContent> {
     _inactivityTimer = Timer(const Duration(seconds: 5), () {
       // Navigate to the homepage after 30 seconds of inactivity
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => HomeScreen()),
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
         (Route<dynamic> route) => false,
       );
     });

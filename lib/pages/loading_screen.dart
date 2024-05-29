@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_app/app_theme.dart';
@@ -11,7 +10,8 @@ class LoadingScreen extends StatelessWidget {
   final double balance;
   final String qrData;
 
-  LoadingScreen({
+  const LoadingScreen({
+    super.key,
     required this.username,
     required this.balance,
     required this.qrData,
@@ -41,33 +41,49 @@ class LoadingScreen extends StatelessWidget {
               dynamic balanceData = jsonData['Content'][0]['Balance'];
               double balance;
 
-              if (balanceData is String) {
-                balance = double.tryParse(balanceData) ?? 0.0;
-              } else if (balanceData is int) {
-                balance = balanceData.toDouble();
+              print('Balance data type: ${balanceData.runtimeType}');
+
+              if (balanceData is double) {
+                balance = balanceData;
               } else {
-                balance = 0.0;
+                balance = 0;
                 // Handle unexpected data type
                 print('Error: Unexpected data type for balance');
               }
 
               // Navigate to Reload page with the parsed data
-              Navigator.of(context).pushReplacement(MaterialPageRoute(
-                builder: (context) =>
-                    Reload(username: userName, balance: balance),
+              Navigator.of(context).pushReplacement(PageRouteBuilder(
+                transitionDuration: const Duration(seconds: 1),
+                pageBuilder: (context, animation, secondaryAnimation) {
+                  return Reload(username: userName, balance: balance);
+                },
+                transitionsBuilder:
+                    (context, animation, secondaryAnimation, child) {
+                  var begin = const Offset(1.0, 0.0);
+                  var end = Offset.zero;
+                  var curve = Curves.easeInOut;
+
+                  var tween = Tween(begin: begin, end: end)
+                      .chain(CurveTween(curve: curve));
+
+                  return SlideTransition(
+                    position: animation.drive(tween),
+                    child: child,
+                  );
+                },
               ));
             } else {
               // Navigate to QRError page if response is empty or unexpected
               print('Empty or unexpected response: $jsonData');
               Navigator.of(context).pushReplacement(MaterialPageRoute(
-                builder: (context) => QRError(),
+                builder: (context) => const QRError(),
               ));
             }
           } else {
             // Navigate to QRError page on API call failure
             print('API call failed with status code: ${response.statusCode}');
             Navigator.of(context).pushReplacement(MaterialPageRoute(
-              builder: (context) => QRError(),
+              builder: (context) => const QRError(),
             ));
           }
         } catch (error) {
@@ -75,7 +91,7 @@ class LoadingScreen extends StatelessWidget {
           print('API Error: $error');
           // Navigate to QRError page if an error occurs during API call
           Navigator.of(context).pushReplacement(MaterialPageRoute(
-            builder: (context) => QRError(),
+            builder: (context) => const QRError(),
           ));
         }
       });

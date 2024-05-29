@@ -47,8 +47,10 @@ class QRError extends StatelessWidget {
             ),
             GestureDetector(
               onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => HomeScreen()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const HomeScreen()));
               },
               child: Container(
                 margin: const EdgeInsets.only(bottom: 30),
@@ -78,8 +80,8 @@ class QRError extends StatelessWidget {
             ),
             GestureDetector(
               onTap: () {
-                Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => ScanQr()));
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => const ScanQr()));
               },
               child: Container(
                 margin: const EdgeInsets.only(bottom: 10),

@@ -16,14 +16,14 @@ class PaymentSuccess extends StatefulWidget {
   final String qrData;
 
   const PaymentSuccess({
-    Key? key,
+    super.key,
     required this.amount,
     required this.uuid,
     required this.accID,
     required this.username,
     required this.balance,
     required this.qrData,
-  }) : super(key: key);
+  });
 
   @override
   _PaymentSuccessState createState() => _PaymentSuccessState();

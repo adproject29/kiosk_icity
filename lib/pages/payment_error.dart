@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/pages/loading_uuid.dart';
 import 'package:flutter_app/pages/reload.dart';
-import 'package:flutter_app/pages/terminal.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_app/app_theme.dart';
 

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/app_theme.dart';
-import 'package:flutter_app/home_screen.dart';
 import 'package:flutter_app/pages/loading_screen.dart';
 import 'package:flutter_app/pages/loading_uuid.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -17,7 +16,6 @@ class ScanQr extends StatefulWidget {
 }
 
 class _ScanQrState extends State<ScanQr> {
-  bool _isDialogShowing = false;
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   final Dio _dio = Dio();

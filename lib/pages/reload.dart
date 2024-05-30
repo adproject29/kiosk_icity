@@ -8,12 +8,17 @@ import 'package:flutter_app/app_theme.dart';
 class Reload extends StatefulWidget {
   final String username;
   final double balance;
+  final String uuid;
+  final int accID;
+  final String qrData;
 
-  const Reload({
-    super.key,
-    required this.username,
-    required this.balance,
-  });
+  const Reload(
+      {super.key,
+      required this.username,
+      required this.balance,
+      required this.uuid,
+      required this.accID,
+      required this.qrData});
 
   @override
   _ReloadState createState() => _ReloadState();
@@ -59,10 +64,11 @@ class _ReloadState extends State<Reload> {
   }
 
   void _validateAmount() {
-    isValidAmount = amount >= 20 && amount <= 500;
+    isValidAmount = amount >= 1 && amount <= 500; // Set the lower limit to 1
     isContinueDisabled = !isValidAmount;
 
-    if (amount == 0 || amount < 20) {
+    if (amount == 0 || amount < 1) {
+      // Change this condition to check for lower limit
       minReloadOpacity = 1.0;
       maxReloadOpacity = 0.0;
     } else if (amount > 500) {
@@ -180,8 +186,8 @@ class _ReloadState extends State<Reload> {
     );
   }
 
-  void _showReloadConfirmationDialog(
-      BuildContext context, String username, double balance, int amount) {
+  void _showReloadConfirmationDialog(BuildContext context, String username,
+      double balance, int amount, String uuid, int accID, String qrData) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -278,6 +284,9 @@ class _ReloadState extends State<Reload> {
                                 username: username,
                                 balance: balance,
                                 amount: amount.toDouble(),
+                                uuid: widget.uuid,
+                                accID: widget.accID,
+                                qrData: qrData,
                               );
                             },
                             transitionsBuilder: (context, animation,
@@ -332,204 +341,202 @@ class _ReloadState extends State<Reload> {
   Widget build(BuildContext context) {
     return AppTheme.buildPage(
       context: context,
-      child: Column(
-        children: [
-          Row(
-            children: [
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    PageRouteBuilder(
-                      transitionDuration: const Duration(seconds: 1),
-                      pageBuilder: (context, animation, secondaryAnimation) {
-                        return const ScanQr();
-                      },
-                      transitionsBuilder:
-                          (context, animation, secondaryAnimation, child) {
-                        var begin = const Offset(-1.0, 0.0);
-                        var end = Offset.zero;
-                        var curve = Curves.easeInOut;
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            Row(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        transitionDuration: const Duration(seconds: 1),
+                        pageBuilder: (context, animation, secondaryAnimation) {
+                          return const ScanQr(uuid: '');
+                        },
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                          var begin = const Offset(-1.0, 0.0);
+                          var end = Offset.zero;
+                          var curve = Curves.easeInOut;
 
-                        var tween = Tween(begin: begin, end: end)
-                            .chain(CurveTween(curve: curve));
+                          var tween = Tween(begin: begin, end: end)
+                              .chain(CurveTween(curve: curve));
 
-                        return SlideTransition(
-                          position: animation.drive(tween),
-                          child: child,
-                        );
-                      },
-                    ),
-                  );
-                },
-                child: Container(
-                  margin: const EdgeInsets.fromLTRB(50, 50, 10, 0),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
-                    color: Colors.white,
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color(0x40000000),
-                        offset: Offset(0, 4),
-                        blurRadius: 2,
+                          return SlideTransition(
+                            position: animation.drive(tween),
+                            child: child,
+                          );
+                        },
                       ),
-                    ],
-                  ),
+                    );
+                  },
                   child: Container(
-                    width: 150,
-                    height: 150,
-                    padding: const EdgeInsets.fromLTRB(20, 35, 33, 34),
-                    child: SizedBox(
-                      width: 43,
-                      height: 81,
-                      child: SvgPicture.asset(
-                        'assets/vectors/arrow_back.svg',
+                    margin: const EdgeInsets.fromLTRB(50, 50, 10, 0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30),
+                      color: Colors.white,
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color(0x40000000),
+                          offset: Offset(0, 4),
+                          blurRadius: 2,
+                        ),
+                      ],
+                    ),
+                    child: Container(
+                      width: 150,
+                      height: 150,
+                      padding: const EdgeInsets.fromLTRB(20, 35, 33, 34),
+                      child: SizedBox(
+                        width: 43,
+                        height: 81,
+                        child: SvgPicture.asset(
+                          'assets/vectors/arrow_back.svg',
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              Column(
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(10, 100, 0, 0),
+                      child: Text(
+                        'Hi,',
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w300,
+                          fontSize: 40,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(10, 0, 0, 19),
+                      child: Text(
+                        '${widget.username}',
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 40,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            Container(
+              margin: const EdgeInsets.fromLTRB(310, 0, 0, 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    margin: const EdgeInsets.fromLTRB(10, 100, 0, 0),
+                    margin: const EdgeInsets.fromLTRB(0, 26, 10.3, 9),
                     child: Text(
-                      'Hi,',
+                      'Current Balance :',
                       style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w300,
-                        fontSize: 40,
+                        fontWeight: FontWeight.w400,
+                        fontSize: 32,
                         color: Colors.black,
                       ),
                     ),
                   ),
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(10, 0, 0, 19),
-                    child: Text(
-                      '${widget.username}',
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 40,
-                        color: Colors.black,
-                      ),
+                  Text(
+                    'RM${widget.balance.toStringAsFixed(2)}',
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 55,
+                      color: const Color(0xFFF36F21),
                     ),
                   ),
                 ],
               ),
-            ],
-          ),
-          Container(
-            margin: const EdgeInsets.fromLTRB(310, 0, 0, 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  margin: const EdgeInsets.fromLTRB(0, 26, 10.3, 9),
-                  child: Text(
-                    'Current Balance :',
-                    style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.w400,
-                      fontSize: 32,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-                Text(
-                  'RM${widget.balance.toStringAsFixed(2)}',
-                  style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 55,
-                    color: const Color(0xFFF36F21),
-                  ),
-                ),
-              ],
             ),
-          ),
-          Container(
-            margin: const EdgeInsets.fromLTRB(0, 0, 13.6, 0),
-            child: SizedBox(
-              width: 1000,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(16, 20, 0, 0),
-                    child: Text(
-                      'Enter reload amount',
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w300,
-                        fontSize: 48,
-                        color: Colors.black,
+            Container(
+              margin: const EdgeInsets.fromLTRB(0, 0, 13.6, 0),
+              child: SizedBox(
+                width: 1000,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(16, 20, 0, 0),
+                      child: Text(
+                        'Enter reload amount',
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w300,
+                          fontSize: 48,
+                          color: Colors.black,
+                        ),
                       ),
                     ),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(17, 0, 0, 19),
-                    child: Text(
-                      'RM $amount',
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 64,
-                        color: Colors.black,
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(17, 0, 0, 19),
+                      child: Text(
+                        'RM $amount',
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 64,
+                          color: Colors.black,
+                        ),
                       ),
                     ),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(7, 0, 0, 7),
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        color: Colors.black,
-                      ),
-                      child: const SizedBox(
-                        width: 700,
-                        height: 3,
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(7, 0, 0, 7),
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          color: Colors.black,
+                        ),
+                        child: const SizedBox(
+                          width: 700,
+                          height: 3,
+                        ),
                       ),
                     ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Opacity(
-                        opacity: minReloadOpacity,
-                        child: Container(
-                          margin: const EdgeInsets.fromLTRB(102, 5, 0, 30),
-                          child: Text(
-                            '*Min reload: RM20',
-                            style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.w400,
-                              fontSize: 32,
-                              color: const Color(0xFFEB001B),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Opacity(
+                          opacity: minReloadOpacity,
+                          child: Container(
+                            margin: const EdgeInsets.fromLTRB(102, 5, 0, 30),
+                            child: Text(
+                              '*Min reload: RM20',
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w400,
+                                fontSize: 32,
+                                color: const Color(0xFFEB001B),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      Opacity(
-                        opacity: maxReloadOpacity,
-                        child: Container(
-                          margin: const EdgeInsets.fromLTRB(0, 5, 100, 30),
-                          child: Text(
-                            '*Max reload: RM500',
-                            style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.w400,
-                              fontSize: 32,
-                              color: const Color(0xFFEB001B),
+                        Opacity(
+                          opacity: maxReloadOpacity,
+                          child: Container(
+                            margin: const EdgeInsets.fromLTRB(0, 5, 100, 30),
+                            child: Text(
+                              '*Max reload: RM500',
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w400,
+                                fontSize: 32,
+                                color: const Color(0xFFEB001B),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  _buildRow(['1', '2', '3']),
-                  _buildRow(['4', '5', '6']),
-                  _buildRow(['7', '8', '9']),
-                  _buildRow(['C', '0', 'D']),
-                  Positioned(
-                    top: MediaQuery.of(context).size.height *
-                        0.75, // Adjust the percentage as needed
-                    right: 20,
-                    child: GestureDetector(
+                      ],
+                    ),
+                    _buildRow(['1', '2', '3']),
+                    _buildRow(['4', '5', '6']),
+                    _buildRow(['7', '8', '9']),
+                    _buildRow(['C', '0', 'D']),
+                    const SizedBox(height: 20), // Added space before the button
+                    GestureDetector(
                       onTap: () {
                         if (isValidAmount) {
                           _showReloadConfirmationDialog(
@@ -537,11 +544,15 @@ class _ReloadState extends State<Reload> {
                             widget.username,
                             widget.balance,
                             amount,
+                            widget.uuid,
+                            widget.accID,
+                            widget.qrData,
                           );
                         }
                       },
                       child: Container(
-                        margin: const EdgeInsets.fromLTRB(0, 0, 2, 0),
+                        margin: const EdgeInsets.only(
+                            top: 20, bottom: 20), // Adjusted margin
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(25),
                           color: isContinueDisabled
@@ -559,7 +570,8 @@ class _ReloadState extends State<Reload> {
                         ),
                         width: 820,
                         height: 130,
-                        padding: const EdgeInsets.fromLTRB(0, 22, 0, 22),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 22), // Adjusted padding
                         alignment: Alignment.center,
                         child: Text(
                           'Continue',
@@ -571,12 +583,12 @@ class _ReloadState extends State<Reload> {
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

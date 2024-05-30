@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/home_screen.dart';
+import 'package:flutter_app/pages/loading_uuid.dart';
 import 'package:flutter_app/pages/scan_qr.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_app/app_theme.dart';
 
 class QRError extends StatelessWidget {
-  const QRError({super.key});
+  final String uuid;
+  const QRError({super.key, required this.uuid});
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +51,7 @@ class QRError extends StatelessWidget {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const HomeScreen()));
+                        builder: (context) => const LoadingUUID()));
               },
               child: Container(
                 margin: const EdgeInsets.only(bottom: 30),
@@ -80,8 +81,12 @@ class QRError extends StatelessWidget {
             ),
             GestureDetector(
               onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => const ScanQr()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ScanQr(
+                              uuid: uuid,
+                            )));
               },
               child: Container(
                 margin: const EdgeInsets.only(bottom: 10),

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter_app/app_theme.dart';
 import 'package:flutter_app/pages/scan_qr.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final String uuid;
+
+  const HomeScreen({super.key, required this.uuid});
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -150,7 +151,7 @@ class _HomeScreenState extends State<HomeScreen> {
       PageRouteBuilder(
         transitionDuration: const Duration(seconds: 1),
         pageBuilder: (context, animation, secondaryAnimation) {
-          return const ScanQr(); // Navigate to the ScanQr page
+          return ScanQr(uuid: widget.uuid); // Pass the UUID to ScanQr page
         },
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           var begin = const Offset(1.0, 0.0);

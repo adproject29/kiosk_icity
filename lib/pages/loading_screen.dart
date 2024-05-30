@@ -9,95 +9,90 @@ class LoadingScreen extends StatelessWidget {
   final String username;
   final double balance;
   final String qrData;
+  final String uuid;
+  final int accID;
 
   const LoadingScreen({
     super.key,
     required this.username,
     required this.balance,
     required this.qrData,
+    required this.uuid,
+    required this.accID,
   });
 
   @override
   Widget build(BuildContext context) {
-    // Get screen size
     final Size screenSize = MediaQuery.of(context).size;
 
-    // Call redirect function after a delay
-    void redirectAfterDelay() {
-      Future.delayed(const Duration(seconds: 2), () async {
-        try {
-          // Make API call
-          final response = await http.get(Uri.parse(
-              'http://10.110.212.188/kioskAPI/api/kiosk/GetAccDetails?strData=$qrData'));
+    void redirectAfterDelay() async {
+      await Future.delayed(const Duration(seconds: 2));
+      try {
+        final response = await http.get(Uri.parse(
+            'http://localhost/icitywebapi/api/kiosk/GetAccDetails?strData=$qrData'));
 
-          // Check if API call is successful or not
-          if (response.statusCode == 200) {
-            // Parse response data
-            final jsonData = jsonDecode(response.body);
-            print('Response JSON: $jsonData'); // Log response JSON
-            if (jsonData['Content'] != null && jsonData['Content'].isNotEmpty) {
-              // Extract username and balance
-              String userName = jsonData['Content'][0]['UserName'];
-              dynamic balanceData = jsonData['Content'][0]['Balance'];
-              double balance;
+        if (response.statusCode == 200) {
+          final jsonData = jsonDecode(response.body);
+          print('Response JSON: $jsonData');
 
-              print('Balance data type: ${balanceData.runtimeType}');
+          if (jsonData['Content'] != null && jsonData['Content'].isNotEmpty) {
+            String userName = jsonData['Content'][0]['UserName'];
+            int accID = jsonData['Content'][0]['AccID'];
+            dynamic balanceData = jsonData['Content'][0]['Balance'];
+            double balance;
 
-              if (balanceData is double) {
-                balance = balanceData;
-              } else {
-                balance = 0;
-                // Handle unexpected data type
-                print('Error: Unexpected data type for balance');
-              }
-
-              // Navigate to Reload page with the parsed data
-              Navigator.of(context).pushReplacement(PageRouteBuilder(
-                transitionDuration: const Duration(seconds: 1),
-                pageBuilder: (context, animation, secondaryAnimation) {
-                  return Reload(username: userName, balance: balance);
-                },
-                transitionsBuilder:
-                    (context, animation, secondaryAnimation, child) {
-                  var begin = const Offset(1.0, 0.0);
-                  var end = Offset.zero;
-                  var curve = Curves.easeInOut;
-
-                  var tween = Tween(begin: begin, end: end)
-                      .chain(CurveTween(curve: curve));
-
-                  return SlideTransition(
-                    position: animation.drive(tween),
-                    child: child,
-                  );
-                },
-              ));
+            if (balanceData is double) {
+              balance = balanceData;
             } else {
-              // Navigate to QRError page if response is empty or unexpected
-              print('Empty or unexpected response: $jsonData');
-              Navigator.of(context).pushReplacement(MaterialPageRoute(
-                builder: (context) => const QRError(),
-              ));
+              balance = 0;
+              print('Error: Unexpected data type for balance');
             }
+
+            Navigator.of(context).pushReplacement(PageRouteBuilder(
+              transitionDuration: const Duration(seconds: 1),
+              pageBuilder: (context, animation, secondaryAnimation) {
+                return Reload(
+                  username: userName,
+                  balance: balance,
+                  accID: accID,
+                  uuid: uuid,
+                  qrData: qrData,
+                );
+              },
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                var begin = const Offset(1.0, 0.0);
+                var end = Offset.zero;
+                var curve = Curves.easeInOut;
+                var tween = Tween(begin: begin, end: end)
+                    .chain(CurveTween(curve: curve));
+
+                return SlideTransition(
+                  position: animation.drive(tween),
+                  child: child,
+                );
+              },
+            ));
           } else {
-            // Navigate to QRError page on API call failure
-            print('API call failed with status code: ${response.statusCode}');
+            print('Empty or unexpected response: $jsonData');
             Navigator.of(context).pushReplacement(MaterialPageRoute(
-              builder: (context) => const QRError(),
+              builder: (context) => QRError(uuid: uuid),
             ));
           }
-        } catch (error) {
-          // Print the error
-          print('API Error: $error');
-          // Navigate to QRError page if an error occurs during API call
+        } else {
+          print('API call failed with status code: ${response.statusCode}');
           Navigator.of(context).pushReplacement(MaterialPageRoute(
-            builder: (context) => const QRError(),
+            builder: (context) => QRError(uuid: uuid),
           ));
         }
-      });
+      } catch (error) {
+        print('API Error: $error');
+        Navigator.of(context).pushReplacement(MaterialPageRoute(
+          builder: (context) => QRError(uuid: uuid),
+        ));
+      }
     }
 
-    // Call redirect function
     redirectAfterDelay();
 
     return AppTheme.buildPage(
@@ -105,7 +100,7 @@ class LoadingScreen extends StatelessWidget {
       child: Center(
         child: Container(
           margin: const EdgeInsets.all(100),
-          width: screenSize.width - 200, // Adjusting width with margins
+          width: screenSize.width - 200,
           child: Stack(
             clipBehavior: Clip.none,
             children: [

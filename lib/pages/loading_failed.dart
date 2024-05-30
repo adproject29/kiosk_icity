@@ -4,6 +4,8 @@ import 'package:flutter_app/app_theme.dart';
 import 'package:flutter_app/pages/qr_error.dart';
 
 class LoadingFailed extends StatelessWidget {
+  const LoadingFailed({super.key});
+
   @override
   Widget build(BuildContext context) {
     // Get screen size
@@ -13,7 +15,9 @@ class LoadingFailed extends StatelessWidget {
     void redirectAfterDelay() {
       Future.delayed(const Duration(seconds: 2), () {
         Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (context) => QRError(),
+          builder: (context) => const QRError(
+            uuid: '',
+          ),
         ));
       });
     }

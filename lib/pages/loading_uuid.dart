@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/home_screen.dart';
 import 'package:flutter_app/pages/uuid_error.dart';
@@ -14,11 +14,22 @@ class LoadingUUID extends StatefulWidget {
 
 class _LoadingUUIDState extends State<LoadingUUID> {
   String? _uuid;
+  final Dio _dio = Dio();
 
   @override
   void initState() {
     super.initState();
     _fetchUuidFromLocalService();
+  }
+
+  void _setupInterceptor() {
+    _dio.interceptors.add(
+      InterceptorsWrapper(onRequest: (options, handler) async {
+        options.baseUrl = 'http://localhost:8000/service/getuuid';
+        options.path += '\$text';
+        return handler.next(options);
+      }),
+    );
   }
 
   Future<void> _fetchUuidFromLocalService() async {
@@ -27,11 +38,17 @@ class _LoadingUUIDState extends State<LoadingUUID> {
           await http.get(Uri.parse('http://localhost:8000/service/getuuid'));
 
       if (response.statusCode == 200) {
-        final uuid = response.body.trim();
-        setState(() {
-          _uuid = uuid; // Set the UUID
-        });
-        _fetchUuidFromRemoteService(uuid);
+        final uuidText = response.body.trim();
+        final uuid = _extractUUID(uuidText);
+        if (uuid.isNotEmpty) {
+          setState(() {
+            _uuid = uuid; // Set the UUID
+          });
+          _fetchUuidFromRemoteService(uuid);
+        } else {
+          print('Failed to extract UUID from local service response');
+          _navigateToErrorUUIDPage(context); // Navigate to ErrorUUID page
+        }
       } else {
         print('Failed to fetch UUID from local service');
         _navigateToErrorUUIDPage(context); // Navigate to ErrorUUID page
@@ -42,14 +59,21 @@ class _LoadingUUIDState extends State<LoadingUUID> {
     }
   }
 
+  // Function to extract UUID from a string that contains the UUID inside quotes
+  String _extractUUID(String text) {
+    final regex = RegExp(r'"([^"]+)"');
+    final match = regex.firstMatch(text);
+    return match?.group(1) ?? '';
+  }
+
   Future<void> _fetchUuidFromRemoteService(String uuid) async {
     try {
       final response = await http.get(Uri.parse(
-          'http://10.110.212.188/kioskAPI/api/kiosk/GetTerminal?UUID=$uuid'));
+          'http://localhost/icitywebapi/api/kiosk/GetTerminal?UUID=$uuid'));
 
       if (response.statusCode == 200) {
         print('UUID from remote service: ${response.body}');
-        _navigateToHomeScreen(context); // Navigate to HomeScreen
+        _navigateToHomeScreen(context, uuid); // Pass UUID to HomeScreen
       } else {
         print('Failed to fetch UUID from remote service');
         _navigateToErrorUUIDPage(context); // Navigate to ErrorUUID page
@@ -60,13 +84,13 @@ class _LoadingUUIDState extends State<LoadingUUID> {
     }
   }
 
-  void _navigateToHomeScreen(BuildContext context) {
+  void _navigateToHomeScreen(BuildContext context, String uuid) {
     Navigator.pushReplacement(
       context,
       PageRouteBuilder(
         transitionDuration: const Duration(seconds: 1),
         pageBuilder: (context, animation, secondaryAnimation) {
-          return HomeScreen(); // Navigate to the HomeScreen
+          return HomeScreen(uuid: uuid); // Pass UUID to HomeScreen
         },
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           var begin = const Offset(1.0, 0.0);

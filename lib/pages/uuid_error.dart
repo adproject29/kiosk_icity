@@ -37,7 +37,7 @@ class UUIDError extends StatelessWidget {
             Container(
               margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
               child: Text(
-                'UUID Undefined',
+                'Please get staff to assist you.',
                 style: GoogleFonts.getFont(
                   'Poppins',
                   fontWeight: FontWeight.w600,
